@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CityManager {
+    public static char[] getCity;
     private static Map<String, City> cities = new HashMap<>();
 
     public CityManager() {
