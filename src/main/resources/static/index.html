@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Start Page</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#weatherForm').submit(function(event) {
+                event.preventDefault(); // Prevent the form from submitting normally
+
+                // Get the input value
+                var city = $('#city').val();
+
+                // Make AJAX request
+                $.get("/weather?city=" + city, function(data) {
+                    // Update the content of the weatherDiv
+                    $('#weatherDiv').html(data);
+                })
+                    .fail(function() {
+                        $('#weatherDiv').html("Failed to fetch weather information.");
+                    });
+            });
+        });
+    </script>
+</head>
+<body>
+<h1>Welcome to the Weather Client!</h1>
+<p>Enter the name of a city to get the current weather information.</p>
+<p>Type 'avsluta' to exit the program.</p>
+<form id="weatherForm" method="get">
+    <label for="city">Enter a city:</label>
+    <input type="text" id="city" name="city">
+    <input type="submit" value="Submit">
+</form>
+<div id="weatherDiv"></div> <!-- This div will contain the weather information -->
+</body>
+</html>
+
+</html>
+
