@@ -1,12 +1,16 @@
 package se.campusmolndal.easyweather.service;
 
 import se.campusmolndal.easyweather.models.City;
+import se.campusmolndal.easyweather.database.DatabaseHandler;
 
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class CityManager {
-    public static char[] getCity;
     private static Map<String, City> cities = new HashMap<>();
 
     public CityManager() {
@@ -24,18 +28,15 @@ public class CityManager {
     }
 
     public static City getCity(String cityName) {
-        // Check if the city name is an alias, if so, get the actual city name
         if (cities.containsKey(cityName)) {
             return cities.get(cityName);
         } else {
-            // Iterate through city aliases to find the actual city name
             for (Map.Entry<String, City> entry : cities.entrySet()) {
                 if (entry.getValue().getAliases().contains(cityName)) {
                     return entry.getValue();
                 }
             }
         }
-        // If the city name or alias is not found, return null
         return null;
     }
 
@@ -43,5 +44,40 @@ public class CityManager {
         if (cities.containsKey(cityName)) {
             cities.get(cityName).addAlias(alias);
         }
+    }
+
+    public City getCityFromDatabaseOrAddNew(String input) throws SQLException, IOException {
+        City city = CityManager.getCity(input);
+
+        if (city == null) {
+            DataSource dataSource = getDataSource();
+            DatabaseHandler databaseHandler = new DatabaseHandler(dataSource);
+            city = databaseHandler.getCityFromDatabase(input);
+
+            if (city == null) {
+                System.out.println("Staden finns inte i databasen. Vill du lägga till den? (ja/nej)");
+                Scanner scanner = new Scanner(System.in);
+                String response = scanner.nextLine();
+                if (response.equalsIgnoreCase("ja")) {
+                    double[] latLong = fetchLatLong(input);
+                    if (latLong != null) {
+                        city = new City(input, latLong[0], latLong[1]);
+                        CityManager.cities.put(city.getName(), city);
+                        databaseHandler.saveCity(input, city.getLatitude(), city.getLongitude());
+                    } else {
+                        System.out.println("Kunde inte hitta latitud och longitud för staden.");
+                    }
+                }
+            }
+        }
+
+        return city;
+    }
+    private DataSource getDataSource() {
+        return null;
+    }
+
+    private double[] fetchLatLong(String input) {
+        return null;
     }
 }

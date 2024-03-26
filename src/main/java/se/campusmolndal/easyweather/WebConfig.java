@@ -10,6 +10,7 @@ import se.campusmolndal.easyweather.database.DatabaseHandler;
 import javax.sql.DataSource;
 import java.sql.DriverManager;
 
+
 @Configuration
 public class WebConfig {
 
@@ -26,9 +27,9 @@ public class WebConfig {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://bluehawana.mysql.eu-west-1.rds.aliyuncs.com:3306/aliweather?useSSL=false&allowPublicKeyRetrieval=true");
-        dataSource.setUsername("bluehawana");
-        dataSource.setPassword("alybaba981020A!!");
+        dataSource.setUrl(dataSourceUrl);
+        dataSource.setUsername(dataSourceUsername);
+        dataSource.setPassword(dataSourcePassword);
         return dataSource;
     }
 
@@ -37,4 +38,3 @@ public class WebConfig {
         return new DatabaseHandler(dataSource);
     }
 }
-

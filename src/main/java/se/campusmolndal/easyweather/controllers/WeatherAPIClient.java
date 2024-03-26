@@ -68,6 +68,7 @@ public class WeatherAPIClient {
         }
     }
 
+
     private City fetchAndSaveCityData(String cityName) {
         try {
             URL url = new URL(OPENCAGE_GEOCODING_API_URL + "?q=" + URLEncoder.encode(cityName, "UTF-8") + "&key=" + opencageApiKey);
@@ -121,7 +122,7 @@ public class WeatherAPIClient {
     public String buildHtml(WeatherInfo weatherInfo) {
         StringBuilder sb = new StringBuilder();
         sb.append("<div>");
-        sb.append("<h2>").append(CityManager.getCity).append("</h2>");
+        sb.append("<h2>").append(CityManager.getCity("SomeCityName")).append("</h2>");
         sb.append("<p>Temperature: ").append(weatherInfo.getTemperature()).append("°C</p>");
         sb.append("<p>Wind Speed: ").append(weatherInfo.getWindSpeed()).append(" m/s</p>");
         sb.append("<p>Description: ").append(weatherInfo.getDescription()).append("</p>");
