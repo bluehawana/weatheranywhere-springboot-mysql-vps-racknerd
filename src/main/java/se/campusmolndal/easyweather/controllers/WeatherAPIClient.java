@@ -130,7 +130,7 @@ public class WeatherAPIClient {
         return sb.toString();
     }
 
-    public class WeatherDescription {
+    public static class WeatherDescription {
         private static final Map<Integer, String> WEATHER_CODES = new HashMap<>();
 
         static {
