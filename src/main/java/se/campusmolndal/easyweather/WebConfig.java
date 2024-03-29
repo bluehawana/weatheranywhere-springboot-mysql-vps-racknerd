@@ -3,12 +3,14 @@ package se.campusmolndal.easyweather;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.stereotype.Repository;
 import se.campusmolndal.easyweather.database.DatabaseHandler;
+import se.campusmolndal.easyweather.models.City;
 
 import javax.sql.DataSource;
-import java.sql.DriverManager;
+import java.util.List;
 
 
 @Configuration
@@ -32,6 +34,26 @@ public class WebConfig {
         dataSource.setPassword(dataSourcePassword);
         return dataSource;
     }
+
+    @Repository
+    public class CityRepository {
+        private final JdbcTemplate jdbcTemplate;
+
+        public CityRepository(JdbcTemplate jdbcTemplate) {
+            this.jdbcTemplate = jdbcTemplate;
+        }
+
+        public List<City> findDistinctCities() {
+            String sql = "SELECT DISTINCT city, lat, lng FROM aliweather";
+            return jdbcTemplate.query(sql, (rs, rowNum) -> new City(
+                    rs.getString("city"),
+                    rs.getDouble("lat"),
+                    rs.getDouble("lng")
+            ));
+        }
+    }
+
+
 
     @Bean
     public DatabaseHandler databaseHandler(DataSource dataSource) {

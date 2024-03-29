@@ -1,0 +1,22 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    transform: scale(1);
+    transform-origin: 0 0;
+}
+
+.ascii-logo {
+    font-size: 10px;
+    font-family: monospace;
+}
+
+.ascii-art {
+    font-size: 10px;
+    font-family: monospace;
+}
