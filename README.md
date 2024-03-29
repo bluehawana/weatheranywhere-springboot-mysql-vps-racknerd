@@ -33,3 +33,6 @@ Future improvements to this application could include expanding the list of citi
 ## License
 
 The license for this project can be found in the [LICENSE.md](LICENSE) file.
+
+## Author
+Hongzhi Li

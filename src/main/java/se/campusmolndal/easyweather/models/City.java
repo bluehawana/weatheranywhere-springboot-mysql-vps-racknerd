@@ -81,5 +81,12 @@ public class City{
 
     public void addAlias(String alias) {
     }
+
+    public String getCity() {
+        if (name == null) {
+            return null;
+        }
+        return name;
+}
 }
 

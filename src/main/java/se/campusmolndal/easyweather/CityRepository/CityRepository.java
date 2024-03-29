@@ -1,31 +1,25 @@
 package se.campusmolndal.easyweather.CityRepository;
+
 import se.campusmolndal.easyweather.models.City;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
 
-
+@Repository
 public class CityRepository {
-    private Map<String, City> cityMap;
+    private final JdbcTemplate jdbcTemplate;
 
-    public CityRepository() {
-        this.cityMap = new HashMap<>();
+    public CityRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void addCity(City city) {
-        cityMap.put(city.getName(), city);
-    }
-
-    public City getCity(String cityName) {
-        return cityMap.get(cityName);
-    }
-
-    public Optional<City> findByName(String cityName) {
-        return Optional.ofNullable(cityMap.get(cityName));
-    }
-
-    public void save(City city) {
-        cityMap.put(city.getName(), city);
+    public List<City> findDistinctCities() {
+        String sql = "SELECT DISTINCT city, lat, lng FROM aliweather";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new City(
+                rs.getString("city"),
+                rs.getDouble("lat"),
+                rs.getDouble("lng")
+        ));
     }
 }
