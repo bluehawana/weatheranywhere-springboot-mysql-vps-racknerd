@@ -31,7 +31,7 @@ public class DatabaseHandler {
     public boolean cityExists(String cityName) {
         String checkCitySql = "SELECT COUNT(*) FROM aliweather WHERE cityName = ?";
         try (Connection conn = dataSource.getConnection()) {
-            conn.setCatalog("aliweather");
+            conn.setCatalog("weather");
             try (PreparedStatement checkCityStmt = conn.prepareStatement(checkCitySql)) {
                 checkCityStmt.setString(1, cityName);
                 ResultSet rs = checkCityStmt.executeQuery();
@@ -52,7 +52,7 @@ public class DatabaseHandler {
 
         String getCitySql = "SELECT * FROM aliweather WHERE cityName = ?";
         try (Connection conn = dataSource.getConnection()) {
-            conn.setCatalog("aliweather");
+            conn.setCatalog("weather");
             try (PreparedStatement getCityStmt = conn.prepareStatement(getCitySql)) {
                 getCityStmt.setString(1, cityName);
                 ResultSet rs = getCityStmt.executeQuery();
@@ -77,7 +77,7 @@ public class DatabaseHandler {
             String insertCitySql = "INSERT INTO aliweather (cityName, latitude, longitude) VALUES (?, ?, ?)";
 
             try (Connection conn = dataSource.getConnection()) {
-                conn.setCatalog("aliweather");
+                conn.setCatalog("weather");
 
                 try (PreparedStatement checkCityStmt = conn.prepareStatement(checkCitySql)) {
                     checkCityStmt.setString(1, cityName);
