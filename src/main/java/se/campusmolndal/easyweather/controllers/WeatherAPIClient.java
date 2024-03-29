@@ -135,7 +135,10 @@ public class WeatherAPIClient {
         sb.append("</div>");
         return sb.toString();
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> a3b53e1c97443520ab53946f0c9f4296595f1217
     public static class WeatherDescription {
         private static final Map<Integer, String> WEATHER_CODES = new HashMap<>();
 
