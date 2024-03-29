@@ -31,7 +31,7 @@ public class DatabaseHandler {
     public boolean cityExists(String cityName) {
         String checkCitySql = "SELECT COUNT(*) FROM aliweather WHERE cityName = ?";
         try (Connection conn = dataSource.getConnection()) {
-            conn.setCatalog("aliweather");
+            conn.setCatalog("weather");
             try (PreparedStatement checkCityStmt = conn.prepareStatement(checkCitySql)) {
                 checkCityStmt.setString(1, cityName);
                 ResultSet rs = checkCityStmt.executeQuery();
@@ -52,7 +52,7 @@ public class DatabaseHandler {
 
         String getCitySql = "SELECT * FROM aliweather WHERE cityName = ?";
         try (Connection conn = dataSource.getConnection()) {
-            conn.setCatalog("aliweather");
+            conn.setCatalog("weather");
             try (PreparedStatement getCityStmt = conn.prepareStatement(getCitySql)) {
                 getCityStmt.setString(1, cityName);
                 ResultSet rs = getCityStmt.executeQuery();
@@ -71,20 +71,33 @@ public class DatabaseHandler {
         return null;
     }
 
-    public void saveCity(String cityName, double latitude, double longitude) {
-        String insertCitySql = "INSERT INTO aliweather (cityName, latitude, longitude) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE latitude=?, longitude=?";
-        try (Connection conn = dataSource.getConnection()) {
-            conn.setCatalog("aliweather");
-            try (PreparedStatement insertCityStmt = conn.prepareStatement(insertCitySql)) {
-                insertCityStmt.setString(1, cityName);
-                insertCityStmt.setDouble(2, latitude);
-                insertCityStmt.setDouble(3, longitude);
-                insertCityStmt.setDouble(4, latitude);
-                insertCityStmt.setDouble(5, longitude);
-                insertCityStmt.executeUpdate();
+        //We need to avoid SQL injection attacks, so we use a prepared statement
+        public City saveCity(String cityName, double latitude, double longitude) throws SQLException, IOException {
+            String checkCitySql = "SELECT COUNT(*) FROM aliweather WHERE cityName = ?";
+            String insertCitySql = "INSERT INTO aliweather (cityName, latitude, longitude) VALUES (?, ?, ?)";
+
+            try (Connection conn = dataSource.getConnection()) {
+                conn.setCatalog("weather");
+
+                try (PreparedStatement checkCityStmt = conn.prepareStatement(checkCitySql)) {
+                    checkCityStmt.setString(1, cityName);
+                    ResultSet rs = checkCityStmt.executeQuery();
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        // City already exists, return the weather inquiry for the city
+                        return getCityFromDatabase(cityName);
+                    }
+                }
+
+                try (PreparedStatement insertCityStmt = conn.prepareStatement(insertCitySql)) {
+                    insertCityStmt.setString(1, cityName);
+                    insertCityStmt.setDouble(2, latitude);
+                    insertCityStmt.setDouble(3, longitude);
+                    insertCityStmt.executeUpdate();
+                }
+            } catch (SQLException e) {
+                printSQLException(e);
             }
-        } catch (SQLException e) {
-            printSQLException(e);
+            // If the city is newly inserted, return the weather inquiry for the city
+            return getCityFromDatabase(cityName);
         }
-    }
 }

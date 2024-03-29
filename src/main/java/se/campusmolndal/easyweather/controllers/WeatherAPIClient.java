@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,9 +69,13 @@ public class WeatherAPIClient {
         }
     }
 
-
     private City fetchAndSaveCityData(String cityName) {
         try {
+            DatabaseHandler databaseHandler = new DatabaseHandler(dataSource);
+            if(databaseHandler.cityExists(cityName)) {
+                return databaseHandler.getCityFromDatabase(cityName);
+            }
+
             URL url = new URL(OPENCAGE_GEOCODING_API_URL + "?q=" + URLEncoder.encode(cityName, "UTF-8") + "&key=" + opencageApiKey);
             HttpURLConnection geocodingConnection = (HttpURLConnection) url.openConnection();
             geocodingConnection.setRequestMethod("GET");
@@ -91,12 +96,13 @@ public class WeatherAPIClient {
                 double longitude = result.getJSONObject("geometry").getDouble("lng");
 
                 City city = new City(cityName, latitude, longitude);
-                DatabaseHandler databaseHandler = new DatabaseHandler(dataSource);
                 databaseHandler.saveCity(cityName, latitude, longitude);
                 return city;
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
         return null;
