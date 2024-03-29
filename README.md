@@ -34,4 +34,4 @@ Future improvements to this application could include expanding the list of citi
 
 The license for this project can be found in the [LICENSE.md](LICENSE) file.
 
-![alt text](https://github.com/bluehawana/AnyWeather-SpringBoot-AlibabaCloud-ApsaraDB-ESC-/tree/main/src/main/java/se/campusmolndal/easyweather/startpage.jpg?raw=true)
+![ScreenShot](/easyweather/startpage.jpg)
