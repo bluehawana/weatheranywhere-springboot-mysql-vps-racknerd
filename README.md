@@ -34,4 +34,4 @@ Future improvements to this application could include expanding the list of citi
 
 The license for this project can be found in the [LICENSE.md](LICENSE) file.
 
-!![alt text](https://github.com/bluehawana/weather-searching-app/startpage.jpg?raw=true)
+![alt text](https://github.com/bluehawana/weather-searching-app/startpage.jpg?raw=true)
