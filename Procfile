@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT -jar target/weather-anywhere.jar
+web: java -Dserver.port=$PORT -jar target/check-weather-anywhere.jar
