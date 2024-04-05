@@ -24,14 +24,14 @@ public class DatabaseConnection {
     private Environment env;
 
     @PostConstruct
-    private void init() {
-        DB_SERVER = "bluehawana.mysql.eu-west-1.rds.aliyuncs.com";
-        DB_USER = "bluehawana";
-        DB_PASSWORD = "alybaba981020A!!";
-        DB_PORT = "3306";
-        DB_DATABASE = "aliweather";
-        DB_DRIVER = "com.mysql.cj.jdbc.Driver";
-        DB_URL = "jdbc:mysql://" + DB_SERVER + ":" + DB_PORT + "/" + DB_DATABASE + "?useSSL=false&allowPublicKeyRetrieval=true";
+    public void init() {
+        DB_SERVER = env.getProperty("DB_SERVER");
+        DB_USER = env.getProperty("DB_USER");
+        DB_PASSWORD = env.getProperty("DB_PASSWORD");
+        DB_PORT = env.getProperty("DB_PORT");
+        DB_DATABASE = env.getProperty("DB_DATABASE");
+        DB_URL = "jdbc:mysql://" + DB_SERVER + ":" + DB_PORT + "/" + DB_DATABASE + "?useSSL=false&serverTimezone=UTC";
+
     }
 
     public static Connection getConnection() throws SQLException {

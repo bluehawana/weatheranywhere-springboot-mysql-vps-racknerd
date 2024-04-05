@@ -1,4 +1,3 @@
-// WeatherAPIClient.java
 package se.campusmolndal.easyweather.controllers;
 
 import org.json.JSONObject;
@@ -39,13 +38,9 @@ public class WeatherAPIClient {
     }
 
     public WeatherInfo fetchWeather(String cityName) {
-        City city = cityService.getCityFromDatabase(cityName);
-
+        City city = fetchAndSaveCityData(cityName);
         if (city == null) {
-            city = fetchAndSaveCityData(cityName);
-            if (city == null) {
-                throw new RuntimeException("Failed to fetch city data for " + cityName);
-            }
+            throw new RuntimeException("Failed to fetch city data for " + cityName);
         }
 
         double latitude = city.getLatitude();
@@ -72,7 +67,7 @@ public class WeatherAPIClient {
     private City fetchAndSaveCityData(String cityName) {
         try {
             DatabaseHandler databaseHandler = new DatabaseHandler(dataSource);
-            if(databaseHandler.cityExists(cityName)) {
+            if (databaseHandler.cityExists(cityName)) {
                 return databaseHandler.getCityFromDatabase(cityName);
             }
 
@@ -95,18 +90,19 @@ public class WeatherAPIClient {
                 double latitude = result.getJSONObject("geometry").getDouble("lat");
                 double longitude = result.getJSONObject("geometry").getDouble("lng");
 
-                City city = new City(cityName, latitude, longitude);
-                databaseHandler.saveCity(cityName, latitude, longitude);
+                City city = databaseHandler.saveCity(cityName, latitude, longitude);
                 return city;
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            // Log or handle the SQLException appropriately
+            e.printStackTrace();
         }
 
         return null;
     }
+
     WeatherInfo createConnection(HttpURLConnection connection) throws IOException {
         int responseCode = connection.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
@@ -135,6 +131,7 @@ public class WeatherAPIClient {
         sb.append("</div>");
         return sb.toString();
     }
+
     public static class WeatherDescription {
         private static final Map<Integer, String> WEATHER_CODES = new HashMap<>();
 

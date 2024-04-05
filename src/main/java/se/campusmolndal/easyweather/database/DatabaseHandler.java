@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.*;
+
 public class DatabaseHandler {
     private final DataSource dataSource;
 
@@ -31,7 +32,7 @@ public class DatabaseHandler {
     public boolean cityExists(String cityName) {
         String checkCitySql = "SELECT COUNT(*) FROM aliweather WHERE cityName = ?";
         try (Connection conn = dataSource.getConnection()) {
-            conn.setCatalog("weather");
+            conn.setCatalog("r6rrjlqt6d8haf12"); // Set the database name
             try (PreparedStatement checkCityStmt = conn.prepareStatement(checkCitySql)) {
                 checkCityStmt.setString(1, cityName);
                 ResultSet rs = checkCityStmt.executeQuery();
@@ -52,7 +53,7 @@ public class DatabaseHandler {
 
         String getCitySql = "SELECT * FROM aliweather WHERE cityName = ?";
         try (Connection conn = dataSource.getConnection()) {
-            conn.setCatalog("weather");
+            conn.setCatalog("r6rrjlqt6d8haf12"); // Set the database name
             try (PreparedStatement getCityStmt = conn.prepareStatement(getCitySql)) {
                 getCityStmt.setString(1, cityName);
                 ResultSet rs = getCityStmt.executeQuery();
@@ -71,33 +72,33 @@ public class DatabaseHandler {
         return null;
     }
 
-        //We need to avoid SQL injection attacks, so we use a prepared statement
-        public City saveCity(String cityName, double latitude, double longitude) throws SQLException, IOException {
-            String checkCitySql = "SELECT COUNT(*) FROM aliweather WHERE cityName = ?";
-            String insertCitySql = "INSERT INTO aliweather (cityName, latitude, longitude) VALUES (?, ?, ?)";
+    //We need to avoid SQL injection attacks, so we use a prepared statement
+    public City saveCity(String cityName, double latitude, double longitude) throws SQLException, IOException {
+        String checkCitySql = "SELECT COUNT(*) FROM aliweather WHERE cityName = ?";
+        String insertCitySql = "INSERT INTO aliweather (cityName, latitude, longitude) VALUES (?, ?, ?)";
 
-            try (Connection conn = dataSource.getConnection()) {
-                conn.setCatalog("weather");
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setCatalog("r6rrjlqt6d8haf12"); // Set the database name
 
-                try (PreparedStatement checkCityStmt = conn.prepareStatement(checkCitySql)) {
-                    checkCityStmt.setString(1, cityName);
-                    ResultSet rs = checkCityStmt.executeQuery();
-                    if (rs.next() && rs.getInt(1) > 0) {
-                        // City already exists, return the weather inquiry for the city
-                        return getCityFromDatabase(cityName);
-                    }
+            try (PreparedStatement checkCityStmt = conn.prepareStatement(checkCitySql)) {
+                checkCityStmt.setString(1, cityName);
+                ResultSet rs = checkCityStmt.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) {
+                    // City already exists, return the weather inquiry for the city
+                    return getCityFromDatabase(cityName);
                 }
-
-                try (PreparedStatement insertCityStmt = conn.prepareStatement(insertCitySql)) {
-                    insertCityStmt.setString(1, cityName);
-                    insertCityStmt.setDouble(2, latitude);
-                    insertCityStmt.setDouble(3, longitude);
-                    insertCityStmt.executeUpdate();
-                }
-            } catch (SQLException e) {
-                printSQLException(e);
             }
-            // If the city is newly inserted, return the weather inquiry for the city
-            return getCityFromDatabase(cityName);
+
+            try (PreparedStatement insertCityStmt = conn.prepareStatement(insertCitySql)) {
+                insertCityStmt.setString(1, cityName);
+                insertCityStmt.setDouble(2, latitude);
+                insertCityStmt.setDouble(3, longitude);
+                insertCityStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            printSQLException(e);
         }
+        // If the city is newly inserted, return the weather inquiry for the city
+        return getCityFromDatabase(cityName);
+    }
 }
