@@ -14,70 +14,15 @@ body {
 .ascii-logo {
     font-size: 10px;
     font-family: monospace;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    margin-bottom: 20px;
 }
 
-.ascii-art-desktop {
+.ascii-art {
     font-size: 10px;
     font-family: monospace;
-    overflow: auto;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    margin-bottom: 20px;
-    display: block;
 }
 
-.ascii-art-mobile {
-    font-size: 3px;
-    font-family: monospace;
-    overflow: auto;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    margin-bottom: 30px;
-    display: none;
-}
-
-.title-desktop {
-    display: block;
-}
-
-.title-mobile {
-    display: none;
-}
-
-@media (max-width: 600px) {
-    body {
-        font-size: 12px;
-    }
-    .ascii-logo,
-    .ascii-art-desktop {
-        display: none;
-    }
-    .ascii-art-mobile {
-        display: block;
-    }
-    .title-desktop {
-        display: none;
-    }
-    .title-mobile {
-        display: block;
-    }
-}
-
-@media (min-width: 601px) {
-    .ascii-art-mobile {
-        display: none;
-    }
-    .ascii-logo,
-    .ascii-art-desktop {
-        display: block;
-    }
-    .title-mobile {
-        display: none;
-    }
-    .title-desktop {
-        display: block;
-    }
+#weatherDiv {
+    width: 80%;
+    margin: auto;
+    padding: 20px;
 }
