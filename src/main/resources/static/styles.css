@@ -16,6 +16,7 @@ body {
     font-family: monospace;
     white-space: pre-wrap; /* CSS3 */
     word-wrap: break-word;
+    margin-bottom: 20px; /* Adjust as needed */
 }
 
 .ascii-art {
@@ -24,14 +25,16 @@ body {
     overflow: auto;
     white-space: pre-wrap; /* CSS3 */
     word-wrap: break-word;
+    margin-bottom: 20px; /* Adjust as needed */
 }
 
 @media screen and (max-width: 600px) {
     body {
         font-size: 12px; /* Adjust as needed */
     }
-    .ascii-art {
+    .ascii-logo, .ascii-art {
         font-size: 5px; /* Adjust as needed */
+        margin-bottom: 30px; /* Adjust as needed */
     }
     #weatherDiv {
         width: 100%;
