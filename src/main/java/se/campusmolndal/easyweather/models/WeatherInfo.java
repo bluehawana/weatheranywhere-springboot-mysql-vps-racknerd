@@ -12,22 +12,37 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 
+import static se.campusmolndal.easyweather.controllers.WeatherDescription.getWeatherDescription;
+
 
 public class WeatherInfo {
     private final double temperature; // Temperaturen i grader Celsius
     private final double windSpeed; // Vindhastigheten i km/h
     private final String description; // Beskrivningen av vädret
+    private final int weatherCode;
 
     // Konstruktör som accepterar temperatur, vindhastighet och beskrivning
-    public WeatherInfo(double temperature, double windSpeed, String description) {
+    public WeatherInfo(double temperature, double windSpeed, String description, int weatherCode) {
         this.temperature = temperature;
         this.windSpeed = windSpeed;
         this.description = description;
+        this.weatherCode = weatherCode;
     }
 
     // Överlagrad konstruktör som accepterar temperatur och vindhastighet och sätter en standardbeskrivning
-    public WeatherInfo(double temperature, double windSpeed) {
-        this(temperature, windSpeed, "Ingen beskrivning tillgänglig");
+    public WeatherInfo(double temperature, double windSpeed, int weatherCode) {
+        this(temperature, windSpeed, "Ingen beskrivning tillgänglig", weatherCode);
+    }
+
+    public WeatherInfo(double temperature, double windSpeed, int weatherCode, double hourlyTemperature, int hourlyWeatherCode, double hourlyWindSpeed) {
+        this.temperature = hourlyTemperature;
+        this.windSpeed = hourlyWindSpeed;
+        this.description = getWeatherDescription(hourlyWeatherCode);
+        this.weatherCode = hourlyWeatherCode;
+    }
+
+    public WeatherInfo(double temperature, double windSpeed, String description) {
+        this(temperature, windSpeed, description, 0);
     }
 
     public double getTemperature() {

@@ -104,11 +104,6 @@ public class WeatherAPIClient {
     }
 
     WeatherInfo createConnection(HttpURLConnection connection) throws IOException {
-        int responseCode = connection.getResponseCode();
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-            throw new IOException("Failed to fetch weather data. Response code: " + responseCode);
-        }
-
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         StringBuilder response = new StringBuilder();
         String line;
@@ -118,7 +113,23 @@ public class WeatherAPIClient {
         reader.close();
 
         JSONObject jsonResponse = new JSONObject(response.toString());
-        return parseWeatherData(jsonResponse);
+
+        // Extract current_weather data
+        JSONObject currentWeather = jsonResponse.getJSONObject("current_weather");
+        double temperature = currentWeather.getDouble("temperature");
+        double windSpeed = currentWeather.getDouble("windspeed");
+        int weatherCode = currentWeather.getInt("weathercode");
+
+        // Extract hourly data
+        JSONObject hourlyData = jsonResponse.getJSONObject("hourly");
+        double hourlyTemperature = hourlyData.getJSONArray("temperature_2m").getDouble(0);
+        int hourlyWeatherCode = hourlyData.getJSONArray("weather_code").getInt(0);
+        double hourlyWindSpeed = hourlyData.getJSONArray("wind_speed_10m").getDouble(0);
+
+        // Create WeatherInfo object
+        WeatherInfo weatherInfo = new WeatherInfo(temperature, windSpeed, weatherCode, hourlyTemperature, hourlyWeatherCode, hourlyWindSpeed);
+
+        return weatherInfo;
     }
 
     public String buildHtml(WeatherInfo weatherInfo) {
