@@ -47,7 +47,7 @@ public class WeatherAPIClient {
         double longitude = city.getLongitude();
         URL apiUrl = null;
         try {
-            apiUrl = new URL(API_BASE_URL + "?latitude=" + latitude + "&longitude=" + longitude + "&hourly=temperature_2m,weather_code,wind_speed_10m&wind_speed_unit=ms&forecast_days=1");
+            apiUrl = new URL(API_BASE_URL + "?latitude=" + latitude + "&longitude=" + longitude + "&hourly=temperature_2m,weather_code,wind_speed_10m&wind_speed_unit=ms&current_weather=true");
             HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
 
             connection.setRequestMethod("GET");
