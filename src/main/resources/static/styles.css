@@ -20,3 +20,16 @@ body {
     font-size: 10px;
     font-family: monospace;
 }
+
+#weatherDiv {
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+}
+
+@media screen and (max-width: 600px) {
+    #weatherDiv {
+        width: 100%;
+        padding: 10px;
+    }
+}
