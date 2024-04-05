@@ -83,10 +83,13 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <verbose>true</verbose>
-                    <source>3.9.6</source>
                     <target>3.9.6</target>
                     <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
