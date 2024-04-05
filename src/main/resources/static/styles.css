@@ -30,12 +30,12 @@ body {
 }
 
 .ascii-art-mobile {
-    font-size: 20px; /* Adjust as needed */
+    font-size: 5px; /* Adjust as needed */
     font-family: monospace;
     overflow: auto;
     white-space: pre-wrap; /* CSS3 */
     word-wrap: break-word;
-    margin-bottom: 10px; /* Adjust as needed */
+    margin-bottom: 30px; /* Adjust as needed */
     display: none;
 }
 
@@ -48,7 +48,6 @@ body {
     }
     .ascii-art-mobile {
         display: block;
-
     }
     #weatherDiv {
         width: 100%;
