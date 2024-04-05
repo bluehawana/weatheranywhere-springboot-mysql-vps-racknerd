@@ -14,12 +14,16 @@ body {
 .ascii-logo {
     font-size: 10px;
     font-family: monospace;
+    white-space: pre-wrap; /* CSS3 */
+    word-wrap: break-word;
 }
 
 .ascii-art {
     font-size: 10px;
     font-family: monospace;
     overflow: auto;
+    white-space: pre-wrap; /* CSS3 */
+    word-wrap: break-word;
 }
 
 @media screen and (max-width: 600px) {
