@@ -19,22 +19,35 @@ body {
     margin-bottom: 20px; /* Adjust as needed */
 }
 
-.ascii-art {
+.ascii-art-desktop {
     font-size: 10px;
     font-family: monospace;
     overflow: auto;
     white-space: pre-wrap; /* CSS3 */
     word-wrap: break-word;
     margin-bottom: 20px; /* Adjust as needed */
+    display: block;
+}
+
+.ascii-art-mobile {
+    font-size: 3px; /* Adjust as needed */
+    font-family: monospace;
+    overflow: auto;
+    white-space: pre-wrap; /* CSS3 */
+    word-wrap: break-word;
+    margin-bottom: 30px; /* Adjust as needed */
+    display: none;
 }
 
 @media screen and (max-width: 600px) {
     body {
         font-size: 12px; /* Adjust as needed */
     }
-    .ascii-logo, .ascii-art {
-        font-size: 3px; /* Adjust as needed */
-        margin-bottom: 30px; /* Adjust as needed */
+    .ascii-logo, .ascii-art-desktop {
+        display: none;
+    }
+    .ascii-art-mobile {
+        display: block;
     }
     #weatherDiv {
         width: 100%;
