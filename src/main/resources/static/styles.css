@@ -19,15 +19,16 @@ body {
 .ascii-art {
     font-size: 10px;
     font-family: monospace;
-}
-
-#weatherDiv {
-    width: 80%;
-    margin: auto;
-    padding: 20px;
+    overflow: auto;
 }
 
 @media screen and (max-width: 600px) {
+    body {
+        font-size: 12px; /* Adjust as needed */
+    }
+    .ascii-art {
+        font-size: 5px; /* Adjust as needed */
+    }
     #weatherDiv {
         width: 100%;
         padding: 10px;
