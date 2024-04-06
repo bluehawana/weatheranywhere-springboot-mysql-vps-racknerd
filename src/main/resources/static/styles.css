@@ -26,3 +26,25 @@ body {
     margin: auto;
     padding: 20px;
 }
+
+.ascii-art {
+    font-size: 10px;
+    font-family: monospace;
+    padding-top: 20px; /* Add padding to the top */
+    width: 40%; /* Set width to 40% of the screen */
+}
+
+@media (max-width: 600px) {
+    .ascii-art {
+        font-size: 3px; /* Smaller font size for screens 600px or less */
+        width:40%; /* Smaller width for screens 600px or less */
+    }
+    .ascii-logo {
+        font-size: 6px;
+        font-family: monospace;
+        width: 60%;
+    }
+    h1 {
+        font-size: 1.5em;
+    }
+}
