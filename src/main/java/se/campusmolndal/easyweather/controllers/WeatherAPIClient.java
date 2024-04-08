@@ -1,5 +1,6 @@
 package se.campusmolndal.easyweather.controllers;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +48,7 @@ public class WeatherAPIClient {
         double longitude = city.getLongitude();
         URL apiUrl = null;
         try {
-            apiUrl = new URL(API_BASE_URL + "?latitude=" + latitude + "&longitude=" + longitude + "&hourly=temperature_2m,weather_code,wind_speed_10m&wind_speed_unit=ms&current_weather=true");
+            apiUrl = new URL(API_BASE_URL + "?latitude=" + city.getLatitude() + "&longitude=" + city.getLongitude() + "&current=temperature_2m,weather_code,wind_speed_10m"+"&timezone=auto");
             HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
 
             connection.setRequestMethod("GET");
@@ -114,67 +115,22 @@ public class WeatherAPIClient {
 
         JSONObject jsonResponse = new JSONObject(response.toString());
 
-        // Extract current_weather data
-        JSONObject currentWeather = jsonResponse.getJSONObject("current_weather");
-        double temperature = currentWeather.getDouble("temperature");
-        double windSpeed = currentWeather.getDouble("windspeed");
-        int weatherCode = currentWeather.getInt("weathercode");
-
-        // Extract hourly data
-        JSONObject hourlyData = jsonResponse.getJSONObject("hourly");
-        double hourlyTemperature = hourlyData.getJSONArray("temperature_2m").getDouble(0);
-        int hourlyWeatherCode = hourlyData.getJSONArray("weather_code").getInt(0);
-        double hourlyWindSpeed = hourlyData.getJSONArray("wind_speed_10m").getDouble(0);
+        // Extract current data
+        JSONObject currentData = jsonResponse.getJSONObject("current");
+        double temperature = currentData.getDouble("temperature_2m");
+        int weatherCode = currentData.getInt("weather_code");
+        double windSpeed = currentData.getDouble("wind_speed_10m");
 
         // Create WeatherInfo object
-        WeatherInfo weatherInfo = new WeatherInfo(temperature, windSpeed, weatherCode, hourlyTemperature, hourlyWeatherCode, hourlyWindSpeed);
+        WeatherInfo weatherInfo = new WeatherInfo(temperature, windSpeed, weatherCode);
 
         return weatherInfo;
     }
-
-    public String buildHtml(WeatherInfo weatherInfo) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<div>");
-        sb.append("<h2>").append(CityManager.getCity("SomeCityName")).append("</h2>");
-        sb.append("<p>Temperature: ").append(weatherInfo.getTemperature()).append("°C</p>");
-        sb.append("<p>Wind Speed: ").append(weatherInfo.getWindSpeed()).append(" m/s</p>");
-        sb.append("<p>Description: ").append(weatherInfo.getDescription()).append("</p>");
-        sb.append("</div>");
-        return sb.toString();
-    }
-
     public static class WeatherDescription {
         private static final Map<Integer, String> WEATHER_CODES = new HashMap<>();
 
         static {
-            WEATHER_CODES.put(0, "Clear sky");
-            WEATHER_CODES.put(1, "Mainly clear");
-            WEATHER_CODES.put(2, "Partly cloudy");
-            WEATHER_CODES.put(3, "Overcast");
-            WEATHER_CODES.put(45, "Fog");
-            WEATHER_CODES.put(48, "Depositing rime fog");
-            WEATHER_CODES.put(51, "Drizzle: Light");
-            WEATHER_CODES.put(53, "Drizzle: Moderate");
-            WEATHER_CODES.put(55, "Drizzle: Dense intensity");
-            WEATHER_CODES.put(56, "Freezing Drizzle: Light");
-            WEATHER_CODES.put(57, "Freezing Drizzle: Dense intensity");
-            WEATHER_CODES.put(61, "Rain: Slight");
-            WEATHER_CODES.put(63, "Rain: Moderate");
-            WEATHER_CODES.put(65, "Rain: Heavy intensity");
-            WEATHER_CODES.put(66, "Freezing Rain: Light");
-            WEATHER_CODES.put(67, "Freezing Rain: Heavy intensity");
-            WEATHER_CODES.put(71, "Snow fall: Slight");
-            WEATHER_CODES.put(73, "Snow fall: Moderate");
-            WEATHER_CODES.put(75, "Snow fall: Heavy intensity");
-            WEATHER_CODES.put(77, "Snow grains");
-            WEATHER_CODES.put(80, "Rain showers: Slight");
-            WEATHER_CODES.put(81, "Rain showers: Moderate");
-            WEATHER_CODES.put(82, "Rain showers: Violent");
-            WEATHER_CODES.put(85, "Snow showers: Slight");
-            WEATHER_CODES.put(86, "Snow showers: Heavy");
-            WEATHER_CODES.put(95, "Thunderstorm: Slight or moderate");
-            WEATHER_CODES.put(96, "Thunderstorm with slight hail");
-            WEATHER_CODES.put(99, "Thunderstorm with heavy hail");
+            // ... existing weather codes ...
         }
 
         public static String getWeatherDescription(int weatherCode) {
@@ -182,12 +138,12 @@ public class WeatherAPIClient {
         }
     }
     WeatherInfo parseWeatherData(JSONObject jsonResponse) {
-        JSONObject hourlyData = jsonResponse.getJSONObject("hourly");
-        double temperature = hourlyData.getJSONArray("temperature_2m").getDouble(0);
-        double windSpeed = hourlyData.getJSONArray("wind_speed_10m").getDouble(0);
-        int weatherCode = hourlyData.getJSONArray("weather_code").getInt(0);
+        JSONObject dailyData = jsonResponse.getJSONObject("daily");
+        double temperature = dailyData.getJSONArray("temperature_2m").getDouble(0);
+        double windSpeed = dailyData.getJSONArray("wind_speed_10m").getDouble(0);
+        int weatherCode = dailyData.getJSONArray("weather_code").getInt(0);
 
-        String description = WeatherDescription.getWeatherDescription(weatherCode);
+        String description = se.campusmolndal.easyweather.controllers.WeatherDescription.getWeatherDescription(weatherCode);
 
         return new WeatherInfo(temperature, windSpeed, description);
     }

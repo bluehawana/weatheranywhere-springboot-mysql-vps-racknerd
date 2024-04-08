@@ -39,6 +39,6 @@ public class WeatherDescription {
     }
 
     public static String getWeatherDescription(int weatherCode) {
-        return WEATHER_CODES.getOrDefault(weatherCode, "Unknown weather code");
+        return WEATHER_CODES.get(weatherCode);
     }
 }

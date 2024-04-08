@@ -1,10 +1,8 @@
 package se.campusmolndal.easyweather.models;
 
 import org.json.JSONObject;
-
 import java.util.HashMap;
-import se.campusmolndal.easyweather.models.City;
-import se.campusmolndal.easyweather.models.WeatherInfo;
+import se.campusmolndal.easyweather.controllers.WeatherDescription;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,14 +12,12 @@ import java.util.Map;
 
 import static se.campusmolndal.easyweather.controllers.WeatherDescription.getWeatherDescription;
 
-
 public class WeatherInfo {
     private final double temperature; // Temperaturen i grader Celsius
     private final double windSpeed; // Vindhastigheten i km/h
     private final String description; // Beskrivningen av vädret
     private final int weatherCode;
 
-    // Konstruktör som accepterar temperatur, vindhastighet och beskrivning
     public WeatherInfo(double temperature, double windSpeed, String description, int weatherCode) {
         this.temperature = temperature;
         this.windSpeed = windSpeed;
@@ -29,16 +25,15 @@ public class WeatherInfo {
         this.weatherCode = weatherCode;
     }
 
-    // Överlagrad konstruktör som accepterar temperatur och vindhastighet och sätter en standardbeskrivning
     public WeatherInfo(double temperature, double windSpeed, int weatherCode) {
-        this(temperature, windSpeed, "Ingen beskrivning tillgänglig", weatherCode);
+        this(temperature, windSpeed,  getWeatherDescription(weatherCode), weatherCode);
     }
 
-    public WeatherInfo(double temperature, double windSpeed, int weatherCode, double hourlyTemperature, int hourlyWeatherCode, double hourlyWindSpeed) {
-        this.temperature = hourlyTemperature;
-        this.windSpeed = hourlyWindSpeed;
-        this.description = getWeatherDescription(hourlyWeatherCode);
-        this.weatherCode = hourlyWeatherCode;
+    public WeatherInfo(double temperature, double windSpeed, int weatherCode, double dailyTemperature, int dailyWeatherCode, double dailyWindSpeed) {
+        this.temperature = dailyTemperature;
+        this.windSpeed = dailyWindSpeed;
+        this.description = getWeatherDescription(weatherCode);
+        this.weatherCode = dailyWeatherCode;
     }
 
     public WeatherInfo(double temperature, double windSpeed, String description) {
@@ -55,10 +50,9 @@ public class WeatherInfo {
 
     public String getDescription() {
         return description;
-    }
-
-    //after we got weather description, we need swedish translation to show the user
-    public String getSwedishDescription() {
+}
+        //after we got weather description, we need swedish translation to show the user
+    public String getSwedishDescription( )    {
         switch (description) {
 
             case "Clear sky":
@@ -124,4 +118,3 @@ public class WeatherInfo {
     }
 
 }
-
