@@ -4,6 +4,8 @@ html, body {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    background-color: black;
+    color: white;
 }
 
 body {
@@ -14,17 +16,7 @@ body {
 .ascii-logo {
     font-size: 10px;
     font-family: monospace;
-}
-
-.ascii-art {
-    font-size: 10px;
-    font-family: monospace;
-}
-
-#weatherDiv {
-    width: 80%;
-    margin: auto;
-    padding: 20px;
+    color: white;
 }
 
 .ascii-art {
@@ -32,19 +24,31 @@ body {
     font-family: monospace;
     padding-top: 20px; /* Add padding to the top */
     width: 40%; /* Set width to 40% of the screen */
+    color: white;
+}
+
+#weatherDiv {
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+    background-color: black;
+    color: white;
 }
 
 @media (max-width: 600px) {
     .ascii-art {
         font-size: 3px; /* Smaller font size for screens 600px or less */
         width:40%; /* Smaller width for screens 600px or less */
+        color: white;
     }
     .ascii-logo {
         font-size: 6px;
         font-family: monospace;
         width: 60%;
+        color: white;
     }
     h1 {
         font-size: 1.5em;
+        color: white;
     }
 }
