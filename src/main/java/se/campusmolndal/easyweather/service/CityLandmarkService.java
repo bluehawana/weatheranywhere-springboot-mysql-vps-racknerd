@@ -56,6 +56,7 @@ public class CityLandmarkService {
             case "paris" -> "eiffel tower";
             case "tokyo" -> "tokyo tower";
             case "new york", "newyork" -> "statue of liberty";
+            case "los angeles" -> "hollywood sign";
             case "sydney" -> "opera house";
             case "beijing" -> "forbidden city";
             case "shanghai" -> "oriental pearl tower";
@@ -196,16 +197,32 @@ public class CityLandmarkService {
             String nonce = generateNonce();
             String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
             
+            // Parse existing parameters
+            String[] paramPairs = parameters.split("&");
+            StringBuilder allParams = new StringBuilder();
+            
+            // Add query parameters first
+            for (String param : paramPairs) {
+                if (!param.isEmpty()) {
+                    if (allParams.length() > 0) allParams.append("&");
+                    allParams.append(param);
+                }
+            }
+            
+            // Add OAuth parameters (must be in alphabetical order)
+            if (allParams.length() > 0) allParams.append("&");
+            allParams.append("oauth_consumer_key=").append(URLEncoder.encode(nounProjectApiKey, StandardCharsets.UTF_8));
+            allParams.append("&oauth_nonce=").append(nonce);
+            allParams.append("&oauth_signature_method=HMAC-SHA1");
+            allParams.append("&oauth_timestamp=").append(timestamp);
+            allParams.append("&oauth_version=1.0");
+            
             // Create signature base string
             String signatureBaseString = method + "&" + 
                 URLEncoder.encode(baseUrl, StandardCharsets.UTF_8) + "&" + 
-                URLEncoder.encode(parameters + "&oauth_consumer_key=" + nounProjectApiKey + 
-                    "&oauth_nonce=" + nonce + 
-                    "&oauth_signature_method=HMAC-SHA1" + 
-                    "&oauth_timestamp=" + timestamp + 
-                    "&oauth_version=1.0", StandardCharsets.UTF_8);
+                URLEncoder.encode(allParams.toString(), StandardCharsets.UTF_8);
             
-            // Create signing key
+            // Create signing key (consumer secret + "&" + token secret, but we have no token secret)
             String signingKey = URLEncoder.encode(nounProjectApiSecret, StandardCharsets.UTF_8) + "&";
             
             // Generate signature
@@ -215,9 +232,9 @@ public class CityLandmarkService {
             byte[] signature = mac.doFinal(signatureBaseString.getBytes());
             String encodedSignature = Base64.getEncoder().encodeToString(signature);
             
-            // Build Authorization header
+            // Build Authorization header (don't double-encode the signature)
             return String.format("OAuth oauth_consumer_key=\"%s\", oauth_nonce=\"%s\", oauth_signature=\"%s\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"%s\", oauth_version=\"1.0\"",
-                nounProjectApiKey, nonce, URLEncoder.encode(encodedSignature, StandardCharsets.UTF_8), timestamp);
+                nounProjectApiKey, nonce, encodedSignature, timestamp);
                 
         } catch (Exception e) {
             System.err.println("OAuth1 signature generation failed: " + e.getMessage());
