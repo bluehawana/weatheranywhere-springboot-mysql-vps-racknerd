@@ -156,7 +156,7 @@ public class CityLandmarkService {
     private String getNounProjectIcon(String term, int size) {
         try {
             String baseUrl = "https://api.thenounproject.com/v2/icon";
-            String query = "query=" + URLEncoder.encode(term, StandardCharsets.UTF_8) + "&limit=1";
+            String query = "query=" + URLEncoder.encode(term, StandardCharsets.UTF_8) + "&limit=1&styles=line,solid";
             String url = baseUrl + "?" + query;
             
             // Generate OAuth1 signature
