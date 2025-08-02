@@ -92,6 +92,36 @@ public class OpenAITestController {
         }
     }
     
+    @GetMapping("/test/noun-project")
+    public ResponseEntity<String> testNounProject(@RequestParam(defaultValue = "sun") String term) {
+        try {
+            String result = cityLandmarkService.getNounProjectIcon(term, 64);
+            
+            StringBuilder html = new StringBuilder();
+            html.append("<!DOCTYPE html><html><head>");
+            html.append("<title>Noun Project API Test</title>");
+            html.append("<meta charset='UTF-8'>");
+            html.append("</head><body>");
+            html.append("<h1>Noun Project API Test for: ").append(term).append("</h1>");
+            html.append("<div style='margin: 20px; padding: 20px; border: 1px solid #ccc;'>");
+            html.append("<h3>Result:</h3>");
+            html.append(result);
+            html.append("</div>");
+            html.append("<p>Test other terms:</p>");
+            html.append("<a href='/test/noun-project?term=sun'>sun</a> | ");
+            html.append("<a href='/test/noun-project?term=colosseum'>colosseum</a> | ");
+            html.append("<a href='/test/noun-project?term=weather'>weather</a> | ");
+            html.append("<a href='/test/noun-project?term=rain'>rain</a>");
+            html.append("</body></html>");
+            
+            return ResponseEntity.ok(html.toString());
+            
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body("<html><body><h2>Test Failed</h2><p>Error: " + e.getMessage() + "</p></body></html>");
+        }
+    }
+
     @GetMapping("/test/combined")
     public ResponseEntity<String> testCombinedDisplay(@RequestParam(defaultValue = "Paris") String city) {
         try {
