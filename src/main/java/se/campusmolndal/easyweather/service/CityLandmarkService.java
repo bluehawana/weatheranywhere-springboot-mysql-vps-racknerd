@@ -28,6 +28,9 @@ public class CityLandmarkService {
             case "tokyo" -> "tokyo tower";
             case "new york", "newyork" -> "statue of liberty";
             case "sydney" -> "opera house";
+            case "beijing" -> "beijing";
+            case "shanghai" -> "shanghai";
+            case "hong kong" -> "hong kong";
             default -> cityName + " landmark";
         };
         
@@ -51,7 +54,7 @@ public class CityLandmarkService {
         } else if (lowercaseDesc.contains("snow")) {
             iconTerm = "snow";
         } else if (lowercaseDesc.contains("storm") || lowercaseDesc.contains("thunder")) {
-            iconTerm = "storm";
+            iconTerm = "thunderstorm";
         } else if (lowercaseDesc.contains("fog") || lowercaseDesc.contains("mist")) {
             iconTerm = "fog";
         } else if (lowercaseDesc.contains("wind")) {
