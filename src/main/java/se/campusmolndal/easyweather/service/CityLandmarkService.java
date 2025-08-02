@@ -18,10 +18,10 @@ import javax.crypto.spec.SecretKeySpec;
 @Service
 public class CityLandmarkService {
 
-    @Value("${noun.project.api.key:008adfb4f566422e8d88d5d74bdbe3e7}")
+    @Value("${noun.project.api.key:}")
     private String nounProjectApiKey;
     
-    @Value("${noun.project.api.secret:db9c192c25834a82b770d2a43227363c}")
+    @Value("${noun.project.api.secret:}")
     private String nounProjectApiSecret;
     
     @Autowired
@@ -46,8 +46,8 @@ public class CityLandmarkService {
             }
         }
         
-        // Fallback to simple text if Noun Project fails
-        return String.format("<span style='font-size: %dpx;'>🏛️ %s</span>", 32, cityName);
+        // Fallback to city-specific emoji if Noun Project fails
+        return getCityEmoji(cityName);
     }
     
     private String getOptimalCityTerm(String cityName) {
@@ -78,7 +78,7 @@ public class CityLandmarkService {
 
     public String getWeatherIcon(String weatherDescription) {
         if (weatherDescription == null || weatherDescription.isEmpty()) {
-            return getNounProjectIcon("weather", 64);
+            return getWeatherEmoji("clear");
         }
         
         String iconTerm = getOptimalWeatherTerm(weatherDescription);
@@ -89,9 +89,9 @@ public class CityLandmarkService {
             result = getNounProjectIcon(weatherDescription, 64);
         }
         
-        // If original description fails, try "weather"
+        // If Noun Project fails completely, use weather-appropriate emoji
         if (result.contains("📍")) {
-            result = getNounProjectIcon("weather", 64);
+            return getWeatherEmoji(iconTerm);
         }
         
         return result;
@@ -155,40 +155,55 @@ public class CityLandmarkService {
 
     public String getNounProjectIcon(String term, int size) {
         try {
+            // Use the correct Noun Project v2 API endpoint for icon search
             String baseUrl = "https://api.thenounproject.com/v2/icon";
-            String query = "query=" + URLEncoder.encode(term, StandardCharsets.UTF_8) + "&limit=1&styles=line,solid";
+            String query = "query=" + URLEncoder.encode(term, StandardCharsets.UTF_8) + "&limit=1&thumbnail_size=" + size;
             String url = baseUrl + "?" + query;
+            
+            System.out.println("Fetching icon for term: " + term);
+            System.out.println("API URL: " + url);
             
             // Generate OAuth1 signature
             String authHeader = generateOAuth1Header("GET", baseUrl, query);
             
+            if (authHeader.isEmpty()) {
+                System.err.println("Failed to generate OAuth header - API keys might be missing");
+                return getFallbackIcon(term, size);
+            }
+            
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Authorization", authHeader)
+                    .header("User-Agent", "WeatherApp/1.0")
                     .GET()
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             
+            System.out.println("Response code: " + response.statusCode());
+            
             if (response.statusCode() == 200) {
-                // Simple parsing - in real implementation would use JSON parser
                 String body = response.body();
-                if (body.contains("\"icon_url\"")) {
-                    String iconUrl = extractIconUrl(body);
-                    if (iconUrl != null) {
-                        return String.format("<img src='%s' alt='%s' style='width: %dpx; height: %dpx;' />", 
-                                           iconUrl, term, size, size);
-                    }
+                System.out.println("Response body preview: " + body.substring(0, Math.min(200, body.length())));
+                
+                // Parse JSON response to extract icon URL
+                String iconUrl = extractIconUrlFromJson(body);
+                if (iconUrl != null && !iconUrl.isEmpty()) {
+                    System.out.println("Found icon URL: " + iconUrl);
+                    return String.format("<img src='%s' alt='%s' style='width: %dpx; height: %dpx;' />", 
+                                       iconUrl, term, size, size);
                 }
+            } else if (response.statusCode() == 401) {
+                System.err.println("Noun Project API authentication failed - check your API keys");
             } else {
                 System.err.println("Noun Project API error: " + response.statusCode() + " - " + response.body());
             }
         } catch (Exception e) {
             System.err.println("Failed to fetch icon for: " + term + " - " + e.getMessage());
+            e.printStackTrace();
         }
         
-        // Fallback to simple text
-        return String.format("<span style='font-size: %dpx;'>📍 %s</span>", size/2, term);
+        return getFallbackIcon(term, size);
     }
     
     private String generateOAuth1Header(String method, String baseUrl, String parameters) {
@@ -271,5 +286,108 @@ public class CityLandmarkService {
             }
         }
         return null;
+    }
+    
+    private String extractIconUrlFromJson(String jsonResponse) {
+        // Try different possible JSON fields for icon URLs
+        String[] possibleFields = {"icon_url", "thumbnail_url", "preview_url", "svg_url"};
+        
+        for (String field : possibleFields) {
+            String fieldPattern = "\"" + field + "\":\"";
+            int start = jsonResponse.indexOf(fieldPattern);
+            if (start > 0) {
+                start += fieldPattern.length();
+                int end = jsonResponse.indexOf("\"", start);
+                if (end > start) {
+                    String url = jsonResponse.substring(start, end);
+                    // Unescape JSON string
+                    url = url.replace("\\/", "/");
+                    return url;
+                }
+            }
+        }
+        
+        // Also try to extract from icons array
+        int iconsStart = jsonResponse.indexOf("\"icons\":[");
+        if (iconsStart > 0) {
+            int firstIcon = jsonResponse.indexOf("{", iconsStart);
+            if (firstIcon > 0) {
+                int iconEnd = jsonResponse.indexOf("}", firstIcon);
+                if (iconEnd > firstIcon) {
+                    String iconObj = jsonResponse.substring(firstIcon, iconEnd + 1);
+                    return extractIconUrlFromJson(iconObj);
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    private String getFallbackIcon(String term, int size) {
+        // Return appropriate fallback icon based on term type
+        if (isWeatherTerm(term)) {
+            return getWeatherEmoji(term);
+        } else {
+            // For city landmarks, return the hardcoded fallback
+            return String.format("<span style='font-size: %dpx;'>📍 %s</span>", size/2, term);
+        }
+    }
+    
+    private boolean isWeatherTerm(String term) {
+        String lowerTerm = term.toLowerCase();
+        return lowerTerm.contains("sun") || lowerTerm.contains("rain") || lowerTerm.contains("cloud") || 
+               lowerTerm.contains("snow") || lowerTerm.contains("storm") || lowerTerm.contains("wind") ||
+               lowerTerm.contains("fog") || lowerTerm.contains("clear") || lowerTerm.contains("weather");
+    }
+    
+    private String getWeatherEmoji(String weatherTerm) {
+        return switch (weatherTerm.toLowerCase()) {
+            case "thunderstorm", "lightning" -> "⛈️";
+            case "heavy rain", "downpour" -> "🌧️";
+            case "light rain", "drizzle" -> "🌦️";
+            case "rain", "shower" -> "🌧️";
+            case "heavy snow", "blizzard" -> "❄️";
+            case "light snow", "snow" -> "❄️";
+            case "sleet" -> "🌨️";
+            case "sun", "sunny", "clear" -> "☀️";
+            case "partly cloudy", "partly" -> "⛅";
+            case "overcast", "mostly cloudy" -> "☁️";
+            case "cloud", "cloudy" -> "☁️";
+            case "fog", "mist" -> "🌫️";
+            case "haze", "hazy" -> "🌫️";
+            case "wind", "windy" -> "💨";
+            case "hot weather", "heat" -> "🌡️";
+            case "cold weather", "freezing" -> "🥶";
+            case "tornado" -> "🌪️";
+            case "hurricane" -> "🌀";
+            case "hail" -> "🧊";
+            default -> "🌤️";
+        };
+    }
+    
+    private String getCityEmoji(String cityName) {
+        return switch (cityName.toLowerCase()) {
+            case "london" -> "🇬🇧";
+            case "paris" -> "🇫🇷";
+            case "tokyo" -> "🇯🇵";
+            case "new york", "newyork" -> "🗽";
+            case "los angeles" -> "🎬";
+            case "sydney" -> "🇦🇺";
+            case "beijing" -> "🇨🇳";
+            case "shanghai" -> "🏙️";
+            case "hong kong" -> "🏙️";
+            case "dubai" -> "🕌";
+            case "mumbai" -> "🇮🇳";
+            case "moscow" -> "🇷🇺";
+            case "rome" -> "🏛️";
+            case "athens" -> "🏛️";
+            case "cairo" -> "🏺";
+            case "rio de janeiro", "rio" -> "🇧🇷";
+            case "barcelona" -> "🇪🇸";
+            case "amsterdam" -> "🇳🇱";
+            case "berlin" -> "🇩🇪";
+            case "istanbul" -> "🇹🇷";
+            default -> "🏙️";
+        };
     }
 }
