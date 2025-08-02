@@ -57,12 +57,12 @@ public class WeatherVisualizationController {
                         .header("Content-Type", "text/plain; charset=utf-8")
                         .body(aiDescription);
             } else {
-                return ResponseEntity.notFound()
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("Weather information not found for city: " + city);
             }
         } catch (Exception e) {
             log.error("Error generating AI description for city: {}", city, e);
-            return ResponseEntity.internalServerError()
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Unable to generate weather story at this time. Please try again later.");
         }
     }
