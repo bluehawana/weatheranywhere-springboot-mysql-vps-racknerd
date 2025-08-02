@@ -60,18 +60,6 @@ public class WeatherController {
         sb.append("<p>Wind Speed: ").append(weatherInfo.getWindSpeed()).append(" m/s</p>");
         sb.append("<p>Description: ").append(weatherInfo.getDescription()).append("</p>");
         
-        // Add weather icon from Noun Project
-        String weatherIcon = cityLandmarkService.getWeatherIcon(weatherInfo.getDescription());
-        sb.append("<div style='text-align: center; margin: 15px 0;'>");
-        sb.append(weatherIcon);
-        sb.append("</div>");
-        
-        // Add city landmark icon from Noun Project
-        String cityIcon = cityLandmarkService.getCityIcon(city);
-        sb.append("<div style='text-align: center; margin: 15px 0;'>");
-        sb.append(cityIcon);
-        sb.append("</div>");
-        
         return sb.toString();
     }
 }
