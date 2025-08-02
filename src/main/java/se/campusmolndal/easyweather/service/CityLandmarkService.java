@@ -1,5 +1,6 @@
 package se.campusmolndal.easyweather.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.net.http.HttpClient;
@@ -7,12 +8,25 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.URI;
 import java.time.Duration;
+import java.util.Base64;
+import java.security.SecureRandom;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 @Service
 public class CityLandmarkService {
 
-    @Value("${noun.project.api.key:}")
+    @Value("${noun.project.api.key:008adfb4f566422e8d88d5d74bdbe3e7}")
     private String nounProjectApiKey;
+    
+    @Value("${noun.project.api.secret:db9c192c25834a82b770d2a43227363c}")
+    private String nounProjectApiSecret;
+    
+    @Autowired
+    private AIWeatherService aiWeatherService;
+    
     private final HttpClient httpClient;
 
     public CityLandmarkService() {
@@ -22,21 +36,18 @@ public class CityLandmarkService {
     }
 
     public String getCityIcon(String cityName) {
-        // Try to get specific landmark first, fallback to city name + landmark
-        String iconTerm = getOptimalCityTerm(cityName);
-        String result = getNounProjectIcon(iconTerm, 64);
-        
-        // If specific landmark fails, try just the city name
-        if (result.contains("📍")) {
-            result = getNounProjectIcon(cityName, 64);
+        // First try Noun Project API if available
+        if (nounProjectApiKey != null && !nounProjectApiKey.isEmpty()) {
+            String iconTerm = getOptimalCityTerm(cityName);
+            String result = getNounProjectIcon(iconTerm, 64);
+            
+            if (!result.contains("📍")) {
+                return result;
+            }
         }
         
-        // If city name fails, try "city landmark"
-        if (result.contains("📍")) {
-            result = getNounProjectIcon(cityName + " landmark", 64);
-        }
-        
-        return result;
+        // Fallback to simple text if Noun Project fails
+        return String.format("<span style='font-size: %dpx;'>🏛️ %s</span>", 32, cityName);
     }
     
     private String getOptimalCityTerm(String cityName) {
@@ -143,12 +154,16 @@ public class CityLandmarkService {
 
     private String getNounProjectIcon(String term, int size) {
         try {
-            String url = String.format("https://api.thenounproject.com/v2/icon?query=%s&limit=1", 
-                                     term.replace(" ", "%20"));
+            String baseUrl = "https://api.thenounproject.com/v2/icon";
+            String query = "query=" + URLEncoder.encode(term, StandardCharsets.UTF_8) + "&limit=1";
+            String url = baseUrl + "?" + query;
+            
+            // Generate OAuth1 signature
+            String authHeader = generateOAuth1Header("GET", baseUrl, query);
             
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    .header("Authorization", "Bearer " + nounProjectApiKey)
+                    .header("Authorization", authHeader)
                     .GET()
                     .build();
 
@@ -164,13 +179,57 @@ public class CityLandmarkService {
                                            iconUrl, term, size, size);
                     }
                 }
+            } else {
+                System.err.println("Noun Project API error: " + response.statusCode() + " - " + response.body());
             }
         } catch (Exception e) {
-            System.err.println("Failed to fetch icon for: " + term);
+            System.err.println("Failed to fetch icon for: " + term + " - " + e.getMessage());
         }
         
         // Fallback to simple text
         return String.format("<span style='font-size: %dpx;'>📍 %s</span>", size/2, term);
+    }
+    
+    private String generateOAuth1Header(String method, String baseUrl, String parameters) {
+        try {
+            // OAuth1 parameters
+            String nonce = generateNonce();
+            String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+            
+            // Create signature base string
+            String signatureBaseString = method + "&" + 
+                URLEncoder.encode(baseUrl, StandardCharsets.UTF_8) + "&" + 
+                URLEncoder.encode(parameters + "&oauth_consumer_key=" + nounProjectApiKey + 
+                    "&oauth_nonce=" + nonce + 
+                    "&oauth_signature_method=HMAC-SHA1" + 
+                    "&oauth_timestamp=" + timestamp + 
+                    "&oauth_version=1.0", StandardCharsets.UTF_8);
+            
+            // Create signing key
+            String signingKey = URLEncoder.encode(nounProjectApiSecret, StandardCharsets.UTF_8) + "&";
+            
+            // Generate signature
+            Mac mac = Mac.getInstance("HmacSHA1");
+            SecretKeySpec secretKey = new SecretKeySpec(signingKey.getBytes(), "HmacSHA1");
+            mac.init(secretKey);
+            byte[] signature = mac.doFinal(signatureBaseString.getBytes());
+            String encodedSignature = Base64.getEncoder().encodeToString(signature);
+            
+            // Build Authorization header
+            return String.format("OAuth oauth_consumer_key=\"%s\", oauth_nonce=\"%s\", oauth_signature=\"%s\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"%s\", oauth_version=\"1.0\"",
+                nounProjectApiKey, nonce, URLEncoder.encode(encodedSignature, StandardCharsets.UTF_8), timestamp);
+                
+        } catch (Exception e) {
+            System.err.println("OAuth1 signature generation failed: " + e.getMessage());
+            return "";
+        }
+    }
+    
+    private String generateNonce() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[16];
+        random.nextBytes(bytes);
+        return Base64.getEncoder().encodeToString(bytes).replaceAll("[^a-zA-Z0-9]", "");
     }
 
     private String extractIconUrl(String jsonResponse) {
