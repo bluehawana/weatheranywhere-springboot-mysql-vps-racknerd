@@ -18,55 +18,141 @@ public class CityLandmarkService {
     // Cache for generated landmarks to avoid repeated API calls
     private final Map<String, String> landmarkCache = new HashMap<>();
 
-    public String getCityLandmarkSVG(String cityName, WeatherInfo weatherInfo) {
-        // Check cache first
-        String cacheKey = cityName.toLowerCase();
-        if (landmarkCache.containsKey(cacheKey)) {
-            return landmarkCache.get(cacheKey);
-        }
-
-        // Generate landmark using AI
-        String landmarkSVG = aiWeatherService.generateAILandmarkSVG(cityName, weatherInfo);
-        
-        // Cache the result
-        if (landmarkSVG != null && !landmarkSVG.isEmpty()) {
-            landmarkCache.put(cacheKey, landmarkSVG);
-        }
-        
-        return landmarkSVG != null ? landmarkSVG : generateFallbackLandmarkSVG(cityName);
+    public String getCityLandmarkASCII(String cityName) {
+        return switch (cityName.toLowerCase()) {
+            case "paris" -> """
+                <pre>
+                    /\\
+                   /  \\
+                  /____\\
+                 /      \\
+                /________\\
+               /          \\
+              /______________\\
+                Eiffel Tower
+                </pre>""";
+            case "london" -> """
+                <pre>
+                  ┌───┐
+                  │ ○ │ Big
+                  │ │ │ Ben
+                  │ │ │
+                  └─┬─┘
+                    │
+                  ┌─┴─┐
+                  └───┘
+                </pre>""";
+            case "tokyo" -> """
+                <pre>
+                    △
+                   /│\\
+                  /_│_\\
+                    │
+                   /│\\
+                  /_│_\\
+                    │
+                 Tokyo Tower
+                </pre>""";
+            case "new york", "newyork" -> """
+                <pre>
+                   ♀
+                  /│\\
+                 / │ \\
+                   │
+                 ──┴──
+                Statue
+                </pre>""";
+            case "sydney" -> """
+                <pre>
+                ∩     ∩     ∩
+               ╱ ╲   ╱ ╲   ╱ ╲
+              ╱   ╲ ╱   ╲ ╱   ╲
+             ╱─────╲─────╲─────╲
+             Opera House Sydney
+                </pre>""";
+            default -> String.format("""
+                <pre>
+                  ┌─────┐
+                  │ %s │
+                  └─────┘
+                </pre>""", cityName);
+        };
     }
 
-    public String getWeatherIconPath(String weatherDescription) {
+    public String getWeatherASCII(String weatherDescription) {
         if (weatherDescription == null || weatherDescription.isEmpty()) {
-            return "/weather-icons/default.svg";
+            return "?";
         }
         
         String lowercaseDesc = weatherDescription.toLowerCase();
         
-        // Map to static file paths (using SVG for now, can replace with GIF later)
         if (lowercaseDesc.contains("clear") || lowercaseDesc.contains("sunny")) {
-            return "/weather-icons/sunny.svg";
+            return """
+                <pre>
+                    \\   |   /
+                     \\  |  /
+                   - - ☀ - -
+                     /  |  \\
+                    /   |   \\
+                   Sunny
+                </pre>""";
         }
         if (lowercaseDesc.contains("cloud") || lowercaseDesc.contains("overcast")) {
-            return "/weather-icons/cloudy.svg";
+            return """
+                <pre>
+                   ☁  ☁  ☁
+                  ☁  ☁  ☁
+                   ☁  ☁  ☁
+                   Cloudy
+                </pre>""";
         }
         if (lowercaseDesc.contains("rain") || lowercaseDesc.contains("drizzle")) {
-            return "/weather-icons/rainy.svg";
+            return """
+                <pre>
+                   ☁ ☁ ☁
+                  ☁ ☁ ☁
+                   | | |
+                   | | |
+                   Rainy
+                </pre>""";
         }
         if (lowercaseDesc.contains("snow")) {
-            return "/weather-icons/snowy.svg";
+            return """
+                <pre>
+                   ☁ ☁ ☁
+                  ☁ ☁ ☁
+                   * * *
+                   * * *
+                   Snowy
+                </pre>""";
         }
         if (lowercaseDesc.contains("storm") || lowercaseDesc.contains("thunder")) {
-            return "/weather-icons/rainy.svg";  // Use rainy for storms temporarily
+            return """
+                <pre>
+                   ☁ ☁ ☁
+                  ☁ ☁ ☁
+                   ⚡ | |
+                   | ⚡ |
+                   Storm
+                </pre>""";
         }
         if (lowercaseDesc.contains("fog") || lowercaseDesc.contains("mist")) {
-            return "/weather-icons/cloudy.svg";  // Use cloudy for fog temporarily
-        }
-        if (lowercaseDesc.contains("wind")) {
-            return "/weather-icons/cloudy.svg";  // Use cloudy for windy temporarily
+            return """
+                <pre>
+                  ≡ ≡ ≡ ≡
+                 ≡ ≡ ≡ ≡
+                  ≡ ≡ ≡ ≡
+                   Foggy
+                </pre>""";
         }
         
-        return "/weather-icons/default.svg";
+        return """
+            <pre>
+             ? ? ?
+            ? ? ? ?
+             ? ? ?
+            Weather
+            </pre>""";
     }
 
     public String generateCombinedWeatherDisplay(String cityName, WeatherInfo weatherInfo) {
