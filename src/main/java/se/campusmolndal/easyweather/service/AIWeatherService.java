@@ -37,6 +37,36 @@ public class AIWeatherService {
         );
     }
 
+    public String generateLandmarkSVGPrompt(String city, WeatherInfo weatherInfo) {
+        return String.format(
+            "Generate SVG code for a simple, minimalist landmark icon of %s in black line-art style. " +
+            "Requirements: " +
+            "1. Create a simple SVG (100x100 viewBox) showing the most recognizable landmark of %s " +
+            "2. Use only black lines/strokes (#000000) on transparent background, like a simple icon " +
+            "3. Very minimalist style - similar to icons8 or simple line drawings " +
+            "4. No fills, only stroke outlines, stroke-width around 2-3px " +
+            "5. No text, no weather effects, just the pure landmark shape " +
+            "6. Make it instantly recognizable (Eiffel Tower for Paris, Big Ben for London, etc.) " +
+            "7. Return ONLY the SVG code, no explanations " +
+            "Example format: <svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><path d='...' fill='none' stroke='#000000' stroke-width='2'/></svg>",
+            city, city
+        );
+    }
+
+    public String generateLandmarkPNGPrompt(String city) {
+        return String.format(
+            "Create a simple, minimalist black line-art icon of the most famous landmark of %s. " +
+            "Style requirements: " +
+            "- Very simple black lines on white/transparent background " +
+            "- Similar to icons8 or simple vector icons " +
+            "- 100x100 pixels, PNG format " +
+            "- No fills, only black outlines " +
+            "- Instantly recognizable landmark (Eiffel Tower for Paris, Big Ben for London, etc.) " +
+            "- Clean, minimal design suitable for use as weather app icon",
+            city
+        );
+    }
+
     public String generateAIWeatherDescription(String city, WeatherInfo weatherInfo) {
         if (openaiApiKey == null || openaiApiKey.isEmpty()) {
             return generateFallbackDescription(city, weatherInfo);
@@ -49,6 +79,65 @@ public class AIWeatherService {
             System.err.println("AI service failed, using fallback: " + e.getMessage());
             return generateFallbackDescription(city, weatherInfo);
         }
+    }
+
+    public String generateAILandmarkSVG(String city, WeatherInfo weatherInfo) {
+        if (openaiApiKey == null || openaiApiKey.isEmpty()) {
+            return generateFallbackLandmarkSVG(city, weatherInfo);
+        }
+
+        try {
+            String prompt = generateLandmarkSVGPrompt(city, weatherInfo);
+            String aiResponse = callOpenAI(prompt);
+            
+            // Extract SVG from AI response (it might include extra text)
+            String svgCode = extractSVGFromResponse(aiResponse);
+            return svgCode != null ? svgCode : generateFallbackLandmarkSVG(city, weatherInfo);
+            
+        } catch (Exception e) {
+            System.err.println("AI landmark generation failed, using fallback: " + e.getMessage());
+            return generateFallbackLandmarkSVG(city, weatherInfo);
+        }
+    }
+
+    private String extractSVGFromResponse(String response) {
+        // Extract SVG code from AI response
+        int svgStart = response.indexOf("<svg");
+        int svgEnd = response.lastIndexOf("</svg>") + 6;
+        
+        if (svgStart >= 0 && svgEnd > svgStart) {
+            return response.substring(svgStart, svgEnd);
+        }
+        
+        return null;
+    }
+
+    private String generateFallbackLandmarkSVG(String city, WeatherInfo weatherInfo) {
+        // Simple fallback SVG with city name and weather emoji
+        String weatherEmoji = getWeatherEmoji(weatherInfo.getDescription());
+        
+        return String.format("""
+            <svg viewBox="0 0 400 300" style="background: linear-gradient(to bottom, #87CEEB, #98FB98);">
+                <rect x="150" y="120" width="100" height="80" fill="#696969" stroke="#333" stroke-width="2"/>
+                <polygon points="150,120 200,80 250,120" fill="#8B4513"/>
+                <rect x="180" y="150" width="15" height="25" fill="#654321"/>
+                <rect x="205" y="150" width="15" height="25" fill="#654321"/>
+                <text x="200" y="50" text-anchor="middle" font-size="40">%s</text>
+                <text x="200" y="280" text-anchor="middle" font-size="16" fill="#333">%s</text>
+                <text x="200" y="250" text-anchor="middle" font-size="14" fill="#666">%.1f°C • %s</text>
+            </svg>
+            """, weatherEmoji, city, weatherInfo.getTemperature(), weatherInfo.getDescription());
+    }
+
+    private String getWeatherEmoji(String description) {
+        String desc = description.toLowerCase();
+        if (desc.contains("clear") || desc.contains("sunny")) return "☀️";
+        if (desc.contains("rain")) return "🌧️";
+        if (desc.contains("snow")) return "❄️";
+        if (desc.contains("cloud")) return "☁️";
+        if (desc.contains("storm")) return "⛈️";
+        if (desc.contains("fog") || desc.contains("mist")) return "🌫️";
+        return "🌤️";
     }
 
     private String callOpenAI(String prompt) throws Exception {

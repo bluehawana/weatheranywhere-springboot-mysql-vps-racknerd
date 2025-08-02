@@ -289,6 +289,7 @@
                         <div class="detail-item">
                             <div class="detail-label">Condition</div>
                             <div class="detail-value" id="condition">--</div>
+                            <div class="weather-icon-display" id="weatherIconDisplay" style="margin-top: 10px; font-size: 2rem;"></div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Wind</div>
@@ -412,15 +413,31 @@
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 
-                const tempText = doc.querySelector('p:nth-child(2)')?.textContent || '';
-                const windText = doc.querySelector('p:nth-child(3)')?.textContent || '';
-                const conditionText = doc.querySelector('p:nth-child(4)')?.textContent || '';
+                const paragraphs = doc.querySelectorAll('p');
+                let temperature = 0;
+                let windSpeed = 0;
+                let condition = 'Unknown';
+                let weatherCode = 0;
+
+                paragraphs.forEach(p => {
+                    const text = p.textContent;
+                    if (text.includes('Temperature:')) {
+                        temperature = parseFloat(text.match(/(-?\d+\.?\d*)/)?.[0] || 0);
+                    } else if (text.includes('Wind Speed:')) {
+                        windSpeed = parseFloat(text.match(/(\d+\.?\d*)/)?.[0] || 0);
+                    } else if (text.includes('Description:')) {
+                        condition = text.replace('Description: ', '').trim();
+                    } else if (text.includes('Weather Code:')) {
+                        weatherCode = parseInt(text.match(/(\d+)/)?.[0] || 0);
+                    }
+                });
                 
                 this.currentWeather = {
                     city: city,
-                    temperature: parseFloat(tempText.match(/(-?\d+\.?\d*)/)?.[0] || 0),
-                    windSpeed: parseFloat(windText.match(/(\d+\.?\d*)/)?.[0] || 0),
-                    condition: conditionText.replace('Description: ', '') || 'Unknown'
+                    temperature: temperature,
+                    windSpeed: windSpeed,
+                    condition: condition,
+                    weatherCode: weatherCode
                 };
             }
 
@@ -431,12 +448,33 @@
                 document.getElementById('condition').textContent = this.currentWeather.condition;
                 document.getElementById('windSpeed').textContent = `${this.currentWeather.windSpeed} m/s`;
                 
+                // Add weather icon
+                this.setWeatherIcon(this.currentWeather.weatherCode);
+                
                 // Update AI story
                 document.getElementById('aiStory').innerHTML = aiDescription;
                 
                 // Show weather display
                 document.getElementById('weatherDisplay').classList.add('active');
                 document.getElementById('searchContainer').classList.add('minimized');
+            }
+
+            setWeatherIcon(weatherCode) {
+                const iconDisplay = document.getElementById('weatherIconDisplay');
+                
+                // Icon mapping based on weather codes
+                const iconMap = {
+                    0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
+                    45: '🌫️', 48: '🌫️',
+                    51: '🌦️', 53: '🌦️', 55: '🌦️',
+                    61: '🌧️', 63: '🌧️', 65: '🌧️',
+                    71: '❄️', 73: '❄️', 75: '❄️',
+                    80: '💨', 81: '💨', 82: '💨',
+                    95: '⛈️', 96: '⛈️', 99: '⛈️'
+                };
+
+                const emoji = iconMap[weatherCode] || '❓';
+                iconDisplay.textContent = emoji;
             }
 
             create3DScene() {

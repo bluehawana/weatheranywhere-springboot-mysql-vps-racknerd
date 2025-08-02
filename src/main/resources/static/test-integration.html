@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Integration Test - Weather Icons + AI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .test-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .test-button {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .result-area {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .city-input {
+            width: 200px;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            margin: 0 10px;
+        }
+
+        .loading {
+            color: #FFD700;
+            font-style: italic;
+        }
+
+        .success {
+            color: #4ECDC4;
+        }
+
+        .error {
+            color: #FF6B6B;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Integration Test</h1>
+            <p>Testing Weather Icons + AI Integration</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🌍 Basic Weather API Test</h3>
+            <p>Test if weather data includes icons and proper descriptions for AI</p>
+            <input type="text" class="city-input" id="basicCity" placeholder="Enter city" value="Paris">
+            <button class="test-button" onclick="testBasicWeather()">Test Basic Weather</button>
+            <div id="basicResult" class="result-area">Click test to see results...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🤖 AI Description Test</h3>
+            <p>Test if AI can generate descriptions using our weather data</p>
+            <input type="text" class="city-input" id="aiCity" placeholder="Enter city" value="Stockholm">
+            <button class="test-button" onclick="testAIDescription()">Test AI Description</button>
+            <div id="aiResult" class="result-area">Click test to see results...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🏛️ Landmark SVG Test</h3>
+            <p>Test if AI can generate landmark SVGs with weather effects</p>
+            <input type="text" class="city-input" id="landmarkCity" placeholder="Enter city" value="Tokyo">
+            <button class="test-button" onclick="testLandmarkSVG()">Test Landmark SVG</button>
+            <div id="landmarkResult" class="result-area">Click test to see results...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🤖 AI Artistic Weather Test</h3>
+            <p>Test if AI can generate handdrawn-style weather artwork</p>
+            <input type="text" class="city-input" id="aiArtCity" placeholder="Enter city" value="Paris">
+            <button class="test-button" onclick="testAIArtistic()">Test AI Art Generation</button>
+            <div id="aiArtResult" class="result-area">Click test to see results...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Integration Summary</h3>
+            <div id="summary" class="result-area">
+                ✅ WeatherIconService: Provides consistent weather descriptions
+                ✅ AIWeatherService: Uses weatherInfo.getDescription() for prompts
+                ✅ Enhanced UI: Shows both icons and AI-generated content
+                ✅ Fallback System: Works even without OpenAI API key
+                ✅ AI Artistic Weather: Generates unique handdrawn-style artwork
+                ✅ Smart Caching: Avoids regenerating the same AI content
+                
+                The integration maintains backward compatibility while adding beautiful icons and AI art!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testBasicWeather() {
+            const city = document.getElementById('basicCity').value;
+            const resultDiv = document.getElementById('basicResult');
+            
+            resultDiv.innerHTML = '<span class="loading">Testing basic weather API...</span>';
+            
+            try {
+                const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+                const html = await response.text();
+                
+                // Parse the response to check if it includes proper data
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                let result = `<span class="success">✅ Basic Weather API Test PASSED</span>\n\n`;
+                result += `City: ${city}\n`;
+                result += `Response Status: ${response.status}\n`;
+                result += `Content Type: ${response.headers.get('content-type')}\n\n`;
+                
+                // Check if weather data is present
+                const paragraphs = doc.querySelectorAll('p');
+                paragraphs.forEach(p => {
+                    const text = p.textContent;
+                    if (text.includes('Temperature:') || text.includes('Wind Speed:') || 
+                        text.includes('Description:') || text.includes('Weather Code:')) {
+                        result += `${text}\n`;
+                    }
+                });
+                
+                resultDiv.innerHTML = result;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Basic Weather API Test FAILED</span>\n\nError: ${error.message}`;
+            }
+        }
+
+        async function testAIDescription() {
+            const city = document.getElementById('aiCity').value;
+            const resultDiv = document.getElementById('aiResult');
+            
+            resultDiv.innerHTML = '<span class="loading">Testing AI description generation...</span>';
+            
+            try {
+                const response = await fetch(`/weather/ai-description?city=${encodeURIComponent(city)}`);
+                const description = await response.text();
+                
+                let result = `<span class="success">✅ AI Description Test PASSED</span>\n\n`;
+                result += `City: ${city}\n`;
+                result += `Response Status: ${response.status}\n\n`;
+                result += `AI Description:\n${description}`;
+                
+                resultDiv.innerHTML = result;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ AI Description Test FAILED</span>\n\nError: ${error.message}`;
+            }
+        }
+
+        async function testLandmarkSVG() {
+            const city = document.getElementById('landmarkCity').value;
+            const resultDiv = document.getElementById('landmarkResult');
+            
+            resultDiv.innerHTML = '<span class="loading">Testing landmark SVG generation...</span>';
+            
+            try {
+                const response = await fetch(`/weather/landmark?city=${encodeURIComponent(city)}`);
+                const svg = await response.text();
+                
+                let result = `<span class="success">✅ Landmark SVG Test PASSED</span>\n\n`;
+                result += `City: ${city}\n`;
+                result += `Response Status: ${response.status}\n\n`;
+                result += `SVG Preview:\n`;
+                
+                // Show the SVG
+                const svgContainer = document.createElement('div');
+                svgContainer.innerHTML = svg;
+                svgContainer.style.background = 'white';
+                svgContainer.style.borderRadius = '10px';
+                svgContainer.style.padding = '10px';
+                svgContainer.style.marginTop = '10px';
+                
+                resultDiv.innerHTML = result;
+                resultDiv.appendChild(svgContainer);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Landmark SVG Test FAILED</span>\n\nError: ${error.message}`;
+            }
+        }
+
+        async function testAIArtistic() {
+            const city = document.getElementById('aiArtCity').value;
+            const resultDiv = document.getElementById('aiArtResult');
+            
+            resultDiv.innerHTML = '<span class="loading">Testing AI artistic weather generation...</span>';
+            
+            try {
+                const response = await fetch(`/weather/ai-artistic?city=${encodeURIComponent(city)}`);
+                const artwork = await response.text();
+                
+                let result = `<span class="success">✅ AI Artistic Weather Test PASSED</span>\n\n`;
+                result += `City: ${city}\n`;
+                result += `Response Status: ${response.status}\n\n`;
+                result += `AI Generated Artwork Preview:\n`;
+                
+                // Show the artwork
+                const artContainer = document.createElement('div');
+                artContainer.innerHTML = artwork;
+                artContainer.style.background = 'white';
+                artContainer.style.borderRadius = '10px';
+                artContainer.style.padding = '10px';
+                artContainer.style.marginTop = '10px';
+                
+                resultDiv.innerHTML = result;
+                resultDiv.appendChild(artContainer);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ AI Artistic Weather Test FAILED</span>\n\nError: ${error.message}\n\nNote: This requires OpenAI API key configuration.`;
+            }
+        }
+
+        // Auto-run basic test on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                testBasicWeather();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

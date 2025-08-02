@@ -47,12 +47,32 @@ public class LandmarkAnimationService {
     }
 
     public String generateLandmarkAnimation(String city, WeatherInfo weatherInfo) {
-        // Normalize city name to handle variations
+        // Try AI generation first for dynamic, personalized landmarks
+        String aiGeneratedSVG = aiWeatherService.generateAILandmarkSVG(city, weatherInfo);
+        
+        if (aiGeneratedSVG != null && !aiGeneratedSVG.isEmpty()) {
+            return wrapAIGeneratedSVG(city, aiGeneratedSVG, weatherInfo);
+        }
+        
+        // Fallback to pre-coded landmarks if AI fails
         String normalizedCity = normalizeCityName(city);
         String landmark = CITY_LANDMARKS.getOrDefault(normalizedCity, "city skyline");
         String weatherCondition = weatherInfo.getDescription().toLowerCase();
         
         return generateSVGAnimation(city, landmark, weatherCondition, weatherInfo);
+    }
+
+    private String wrapAIGeneratedSVG(String city, String svgCode, WeatherInfo weatherInfo) {
+        return String.format("""
+            <div class='landmark-container ai-generated'>
+                %s
+                <div class='landmark-info'>
+                    <h3>🤖 AI Generated Landmark</h3>
+                    <p>%s • %s • %.1f°C</p>
+                    <small>Dynamically created by AI</small>
+                </div>
+            </div>
+            """, svgCode, city, weatherInfo.getDescription(), weatherInfo.getTemperature());
     }
     
     private String normalizeCityName(String city) {

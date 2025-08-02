@@ -23,7 +23,9 @@ spring.sql.init.mode=always
 
 # AI Services Configuration
 # OpenAI API Key for enhanced weather descriptions (optional)
-openai.api.key=${OPENAI_API_KEY:}
+# For local development, replace YOUR_OPENAI_API_KEY_HERE with your actual key
+# For Heroku deployment, set OPENAI_API_KEY environment variable
+openai.api.key=${OPENAI_API_KEY:YOUR_OPENAI_API_KEY_HERE}
 
 # Future AI integrations
 # spline.ai.key=${SPLINE_AI_KEY:}

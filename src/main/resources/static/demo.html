@@ -95,6 +95,24 @@
             </div>
 
             <div class="demo-card">
+                <h3>🎨 Enhanced Weather Icons</h3>
+                <p>Beautiful weather display with Streamline HQ icons</p>
+                <button class="demo-button" onclick="openEnhancedWeather()">🌟 Try Enhanced Weather</button>
+            </div>
+
+            <div class="demo-card">
+                <h3>🖌️ Handdrawn Weather Art</h3>
+                <p>Artistic weather experience with handmade illustrations and animations</p>
+                <button class="demo-button" onclick="openHanddrawnWeather()">🎨 Create Weather Art</button>
+            </div>
+
+            <div class="demo-card">
+                <h3>🤖 AI Generated Weather Art</h3>
+                <p>OpenAI creates unique handdrawn-style weather artwork for any city</p>
+                <button class="demo-button" onclick="openAIArtisticWeather()">🤖 Generate AI Art</button>
+            </div>
+
+            <div class="demo-card">
                 <h3>🤖 AI Weather Descriptions</h3>
                 <p>Poetic, AI-generated descriptions that bring weather to life</p>
                 <input type="text" class="city-input" id="cityAI" placeholder="Enter city name">
@@ -111,6 +129,12 @@
                     <li>AI-powered scene generation</li>
                     <li>Interactive 3D environments</li>
                 </ul>
+            </div>
+
+            <div class="demo-card">
+                <h3>🧪 Integration Testing</h3>
+                <p>Test the integration between weather icons and AI services</p>
+                <button class="demo-button" onclick="openTestPage()">🔬 Run Integration Tests</button>
             </div>
 
             <div class="demo-card">
@@ -148,6 +172,22 @@
 
         function demo3D(city) {
             window.open('/weather/3d?city=' + encodeURIComponent(city), '_blank');
+        }
+
+        function openEnhancedWeather() {
+            window.open('/weather/enhanced', '_blank');
+        }
+
+        function openTestPage() {
+            window.open('/weather/test', '_blank');
+        }
+
+        function openHanddrawnWeather() {
+            window.open('/weather/handdrawn', '_blank');
+        }
+
+        function openAIArtisticWeather() {
+            window.open('/weather/ai-artistic', '_blank');
         }
 
         function getAIDescription() {

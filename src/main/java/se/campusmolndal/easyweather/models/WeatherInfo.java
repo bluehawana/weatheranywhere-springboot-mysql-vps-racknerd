@@ -3,6 +3,7 @@ package se.campusmolndal.easyweather.models;
 import org.json.JSONObject;
 import java.util.HashMap;
 import se.campusmolndal.easyweather.controllers.WeatherDescription;
+import se.campusmolndal.easyweather.service.WeatherIconService;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,8 +16,9 @@ import static se.campusmolndal.easyweather.controllers.WeatherDescription.getWea
 public class WeatherInfo {
     private final double temperature; // Temperaturen i grader Celsius
     private final double windSpeed; // Vindhastigheten i km/h
-    private final String description; // Beskrivningen av vädret
+    private String description; // Beskrivningen av vädret
     private final int weatherCode;
+    private WeatherIconService.WeatherIcon icon; // Weather icon data
 
     public WeatherInfo(double temperature, double windSpeed, String description, int weatherCode) {
         this.temperature = temperature;
@@ -50,7 +52,23 @@ public class WeatherInfo {
 
     public String getDescription() {
         return description;
-}
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public WeatherIconService.WeatherIcon getIcon() {
+        return icon;
+    }
+
+    public void setIcon(WeatherIconService.WeatherIcon icon) {
+        this.icon = icon;
+    }
+
+    public int getWeatherCode() {
+        return weatherCode;
+    }
         //after we got weather description, we need swedish translation to show the user
     public String getSwedishDescription( )    {
         switch (description) {

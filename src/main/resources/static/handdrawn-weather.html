@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Handdrawn Weather Experience</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Caveat:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Kalam', cursive;
+            background: linear-gradient(135deg, #f8f6f0 0%, #e8e2d5 100%);
+            color: #5d4e37;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 177, 153, 0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-family: 'Caveat', cursive;
+            font-size: 4rem;
+            font-weight: 700;
+            color: #8b7355;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #6b5b47;
+            font-style: italic;
+            transform: rotate(0.5deg);
+        }
+
+        .sketch-border {
+            border: 3px solid #8b7355;
+            border-radius: 20px;
+            background: rgba(248, 246, 240, 0.9);
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transform: rotate(-0.2deg);
+        }
+
+        .sketch-border::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border: 2px dashed #d4af37;
+            border-radius: 25px;
+            opacity: 0.5;
+        }
+
+        .search-section {
+            text-align: center;
+            transform: rotate(0.3deg);
+        }
+
+        .search-input {
+            width: 300px;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            border: 3px solid #8b7355;
+            border-radius: 25px;
+            background: #fff;
+            color: #5d4e37;
+            font-family: 'Kalam', cursive;
+            margin-bottom: 20px;
+            outline: none;
+            transform: rotate(-0.5deg);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .search-input:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .sketch-button {
+            background: linear-gradient(45deg, #d4af37, #8b7355);
+            color: white;
+            border: 3px solid #5d4e37;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-family: 'Kalam', cursive;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s ease;
+            transform: rotate(0.8deg);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .sketch-button:hover {
+            transform: rotate(-0.5deg) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .weather-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .demo-cities {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .city-button {
+            background: rgba(255,255,255,0.8);
+            border: 2px solid #8b7355;
+            border-radius: 20px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: 'Kalam', cursive;
+            color: #5d4e37;
+            transition: all 0.3s ease;
+            transform: rotate(-0.3deg);
+        }
+
+        .city-button:hover {
+            background: #d4af37;
+            color: white;
+            transform: rotate(0.5deg) scale(1.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-style: italic;
+            color: #8b7355;
+        }
+
+        .loading-sketch {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #d4af37;
+            border-top: 4px solid #8b7355;
+            border-radius: 50%;
+            animation: sketch-spin 2s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes sketch-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .artistic-note {
+            background: rgba(255, 248, 220, 0.9);
+            border: 2px dashed #d4af37;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            font-style: italic;
+            text-align: center;
+            transform: rotate(-0.5deg);
+        }
+
+        .artistic-note::before {
+            content: "🎨";
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2.5rem; }
+            .search-input { width: 250px; font-size: 1rem; }
+            .weather-gallery { grid-template-columns: 1fr; }
+            .sketch-border { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Handdrawn Weather</h1>
+            <p>Where art meets meteorology</p>
+        </div>
+
+        <div class="sketch-border">
+            <div class="search-section">
+                <h3 style="font-family: 'Caveat', cursive; font-size: 2rem; margin-bottom: 20px; color: #8b7355;">Create Your Weather Sketch</h3>
+                <input type="text" class="search-input" id="cityInput" placeholder="Enter a city name...">
+                <br>
+                <button class="sketch-button" id="searchBtn">🖌️ Draw Weather</button>
+                
+                <div class="demo-cities">
+                    <div class="city-button" onclick="drawWeather('Paris')">🗼 Paris</div>
+                    <div class="city-button" onclick="drawWeather('New York')">🏙️ New York</div>
+                    <div class="city-button" onclick="drawWeather('Tokyo')">🗾 Tokyo</div>
+                    <div class="city-button" onclick="drawWeather('London')">🏰 London</div>
+                    <div class="city-button" onclick="drawWeather('Stockholm')">🏔️ Stockholm</div>
+                    <div class="city-button" onclick="drawWeather('Mohe')">❄️ Mohe</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingDiv" class="loading" style="display: none;">
+            <div class="loading-sketch"></div>
+            <p>Sketching your weather masterpiece...</p>
+        </div>
+
+        <div class="weather-gallery" id="weatherGallery">
+            <!-- Weather compositions will be added here -->
+        </div>
+
+        <div class="artistic-note">
+            <strong>Artistic Vision:</strong> Each weather composition combines handdrawn city illustrations with animated weather effects. 
+            The PNG city backgrounds feature watercolor, ink, and pencil techniques, while the weather overlays use traditional animation principles 
+            to create a unique, artistic weather experience.
+        </div>
+
+        <div class="sketch-border">
+            <h3 style="font-family: 'Caveat', cursive; font-size: 2rem; margin-bottom: 20px; color: #8b7355; text-align: center;">🎭 Artistic Styles Available</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center;">
+                <div>
+                    <h4>🎨 City Illustrations</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>• Watercolor skylines</li>
+                        <li>• Ink pen drawings</li>
+                        <li>• Pencil sketches</li>
+                        <li>• Charcoal landscapes</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>🌦️ Weather Animations</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>• Hand-drawn rain drops</li>
+                        <li>• Sketched snowflakes</li>
+                        <li>• Painted sun rays</li>
+                        <li>• Artistic cloud wisps</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>✨ Special Effects</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>• Paper texture overlays</li>
+                        <li>• Pencil stroke filters</li>
+                        <li>• Watercolor blending</li>
+                        <li>• Hand-lettered text</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class HanddrawnWeatherApp {
+            constructor() {
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                const searchBtn = document.getElementById('searchBtn');
+                const cityInput = document.getElementById('cityInput');
+
+                searchBtn.addEventListener('click', () => this.searchWeather());
+                cityInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.searchWeather();
+                });
+
+                cityInput.focus();
+            }
+
+            async searchWeather() {
+                const city = document.getElementById('cityInput').value.trim();
+                if (!city) {
+                    alert('Please enter a city name to create your weather sketch!');
+                    return;
+                }
+
+                await this.drawWeather(city);
+            }
+
+            async drawWeather(city) {
+                this.showLoading();
+
+                try {
+                    // Fetch weather data
+                    const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Weather data not found for ${city}`);
+                    }
+
+                    const weatherHtml = await response.text();
+                    const weatherData = this.parseWeatherData(weatherHtml, city);
+                    
+                    // Generate handdrawn composition
+                    const composition = this.generateHanddrawnComposition(city, weatherData);
+                    
+                    // Add to gallery
+                    this.addToGallery(composition);
+                    
+                } catch (error) {
+                    console.error('Error creating weather sketch:', error);
+                    this.showError(`Unable to create weather sketch for ${city}. Please try again.`);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            parseWeatherData(html, city) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const paragraphs = doc.querySelectorAll('p');
+                let temperature = 'N/A';
+                let windSpeed = 'N/A';
+                let condition = 'N/A';
+                let weatherCode = 0;
+
+                paragraphs.forEach(p => {
+                    const text = p.textContent;
+                    if (text.includes('Temperature:')) {
+                        temperature = text.replace('Temperature: ', '').trim();
+                    } else if (text.includes('Wind Speed:')) {
+                        windSpeed = text.replace('Wind Speed: ', '').trim();
+                    } else if (text.includes('Description:')) {
+                        condition = text.replace('Description: ', '').trim();
+                    } else if (text.includes('Weather Code:')) {
+                        weatherCode = parseInt(text.replace('Weather Code: ', '').trim()) || 0;
+                    }
+                });
+
+                return {
+                    city: city,
+                    temperature: temperature,
+                    windSpeed: windSpeed,
+                    condition: condition,
+                    weatherCode: weatherCode
+                };
+            }
+
+            generateHanddrawnComposition(city, weatherData) {
+                const weatherType = this.mapWeatherCodeToType(weatherData.weatherCode);
+                const emoji = this.getWeatherEmoji(weatherType);
+                const color = this.getWeatherColor(weatherType);
+                
+                return `
+                    <div class="handdrawn-weather-composition" style="position: relative; width: 450px; height: 350px; border-radius: 20px; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.2); background: #f8f6f0; border: 3px solid #8b7355; margin: 0 auto;">
+                        
+                        <!-- Paper texture background -->
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><filter id=\"paper\"><feTurbulence baseFrequency=\"0.04\" numOctaves=\"5\" result=\"noise\" seed=\"1\"/><feDiffuseLighting in=\"noise\" lighting-color=\"white\" surfaceScale=\"1\"><feDistantLight azimuth=\"45\" elevation=\"60\"/></feDiffuseLighting></filter></defs><rect width=\"100\" height=\"100\" fill=\"%23f8f6f0\" filter=\"url(%23paper)\"/></svg>') repeat; opacity: 0.3; z-index: 0;"></div>
+                        
+                        <!-- Fallback city sketch -->
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+                            ${this.generateFallbackCitySketch(city)}
+                        </div>
+                        
+                        <!-- CSS Weather animation -->
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;">
+                            ${this.generateCSSWeatherEffect(weatherType)}
+                        </div>
+                        
+                        <!-- Weather info panel -->
+                        <div style="position: absolute; bottom: 15px; left: 15px; right: 15px; background: rgba(248, 246, 240, 0.95); padding: 15px; border-radius: 15px; border: 2px dashed #8b7355; z-index: 3; font-family: 'Kalam', cursive;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.4rem; color: #5d4e37; font-family: 'Caveat', cursive;">${city}</h3>
+                                    <p style="margin: 5px 0; color: #8b7355; font-size: 0.9rem; font-style: italic;">${weatherData.condition}</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 2.2rem; margin-bottom: 5px;">${emoji}</div>
+                                    <div style="font-size: 1.6rem; font-weight: bold; color: ${color};">${weatherData.temperature}</div>
+                                    <div style="font-size: 0.8rem; color: #8b7355; margin-top: 2px;">${weatherData.windSpeed} wind</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Artist signature -->
+                        <div style="position: absolute; bottom: 5px; right: 10px; z-index: 4; font-family: 'Caveat', cursive; font-size: 0.7rem; color: #8b7355; opacity: 0.7; transform: rotate(-2deg);">
+                            ~ hand drawn with ❤️
+                        </div>
+                    </div>
+                `;
+            }
+
+            generateFallbackCitySketch(city) {
+                return `
+                    <svg viewBox="0 0 400 300" style="width: 100%; height: 100%;">
+                        <defs>
+                            <filter id="roughPaper">
+                                <feTurbulence baseFrequency="0.04" numOctaves="5" result="noise" seed="2"/>
+                                <feDiffuseLighting in="noise" lighting-color="white" surfaceScale="1">
+                                    <feDistantLight azimuth="45" elevation="60"/>
+                                </feDiffuseLighting>
+                            </filter>
+                            <filter id="pencilStroke">
+                                <feTurbulence baseFrequency="0.5" numOctaves="3" result="noise"/>
+                                <feDisplacementMap in="SourceGraphic" in2="noise" scale="2"/>
+                            </filter>
+                        </defs>
+                        
+                        <!-- Paper background -->
+                        <rect width="400" height="300" fill="#f8f6f0" filter="url(#roughPaper)"/>
+                        
+                        <!-- Handdrawn city skyline -->
+                        <path d="M0,250 L50,250 L50,200 L80,200 L80,180 L120,180 L120,160 L160,160 L160,140 L200,140 L200,120 L240,120 L240,160 L280,160 L280,180 L320,180 L320,200 L360,200 L360,220 L400,220 L400,300 L0,300 Z" 
+                              fill="#5d4e37" 
+                              stroke="#3d2e17" 
+                              stroke-width="2" 
+                              filter="url(#pencilStroke)"
+                              opacity="0.8"/>
+                        
+                        <!-- City name in handwritten style -->
+                        <text x="200" y="280" text-anchor="middle" font-family="Caveat, cursive" font-size="18" fill="#5d4e37" transform="rotate(-1 200 280)">${city}</text>
+                        
+                        <!-- Decorative sketchy elements -->
+                        <circle cx="320" cy="80" r="25" fill="none" stroke="#8b7355" stroke-width="2" stroke-dasharray="3,2" opacity="0.6"/>
+                        <path d="M300,70 Q320,60 340,70" fill="none" stroke="#8b7355" stroke-width="1.5" opacity="0.5"/>
+                    </svg>
+                `;
+            }
+
+            generateCSSWeatherEffect(weatherType) {
+                switch (weatherType) {
+                    case 'rain':
+                        return this.generateHanddrawnRain();
+                    case 'snow':
+                        return this.generateHanddrawnSnow();
+                    case 'clear':
+                        return this.generateHanddrawnSun();
+                    case 'cloudy':
+                        return this.generateHanddrawnClouds();
+                    case 'thunderstorm':
+                        return this.generateHanddrawnThunderstorm();
+                    default:
+                        return '';
+                }
+            }
+
+            generateHanddrawnRain() {
+                return `
+                    <svg width="100%" height="100%" style="position: absolute;">
+                        <defs>
+                            <filter id="roughen">
+                                <feTurbulence baseFrequency="0.02" numOctaves="3" result="noise"/>
+                                <feDisplacementMap in="SourceGraphic" in2="noise" scale="1"/>
+                            </filter>
+                        </defs>
+                        <g stroke="#4682B4" stroke-width="1.5" opacity="0.7" filter="url(#roughen)">
+                            <line x1="50" y1="0" x2="45" y2="100" stroke-dasharray="2,1">
+                                <animateTransform attributeName="transform" type="translate" values="0,-100; 0,400" dur="1s" repeatCount="indefinite"/>
+                            </line>
+                            <line x1="100" y1="0" x2="95" y2="100" stroke-dasharray="2,1">
+                                <animateTransform attributeName="transform" type="translate" values="0,-100; 0,400" dur="1.2s" repeatCount="indefinite"/>
+                            </line>
+                            <line x1="150" y1="0" x2="145" y2="100" stroke-dasharray="2,1">
+                                <animateTransform attributeName="transform" type="translate" values="0,-100; 0,400" dur="0.8s" repeatCount="indefinite"/>
+                            </line>
+                        </g>
+                    </svg>
+                `;
+            }
+
+            generateHanddrawnSnow() {
+                return `
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                        <div style="position: absolute; left: 10%; font-size: 1.2rem; color: #E6E6FA; animation: snow-sketch 4s linear infinite; font-family: serif;">❅</div>
+                        <div style="position: absolute; left: 30%; font-size: 0.9rem; color: #E6E6FA; animation: snow-sketch 5s linear infinite 1s; font-family: serif;">❄</div>
+                        <div style="position: absolute; left: 50%; font-size: 1.1rem; color: #E6E6FA; animation: snow-sketch 4.5s linear infinite 2s; font-family: serif;">❅</div>
+                        <div style="position: absolute; left: 70%; font-size: 1rem; color: #E6E6FA; animation: snow-sketch 3.8s linear infinite 0.5s; font-family: serif;">❄</div>
+                        <div style="position: absolute; left: 90%; font-size: 0.8rem; color: #E6E6FA; animation: snow-sketch 4.2s linear infinite 1.5s; font-family: serif;">❅</div>
+                    </div>
+                    <style>
+                        @keyframes snow-sketch {
+                            0% { transform: translateY(-50px) rotate(0deg); opacity: 0; }
+                            10% { opacity: 1; }
+                            90% { opacity: 1; }
+                            100% { transform: translateY(400px) rotate(360deg); opacity: 0; }
+                        }
+                    </style>
+                `;
+            }
+
+            generateHanddrawnSun() {
+                return `
+                    <div style="position: absolute; top: 40px; right: 40px;">
+                        <svg width="80" height="80" viewBox="0 0 80 80">
+                            <defs>
+                                <filter id="sketch">
+                                    <feTurbulence baseFrequency="0.3" numOctaves="2" result="noise"/>
+                                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="1"/>
+                                </filter>
+                            </defs>
+                            <g stroke="#FFD700" stroke-width="2" fill="none" filter="url(#sketch)" opacity="0.8">
+                                <path d="M40,5 L40,15" stroke-dasharray="1,1"/>
+                                <path d="M65,15 L60,20" stroke-dasharray="1,1"/>
+                                <path d="M75,40 L65,40" stroke-dasharray="1,1"/>
+                                <path d="M65,65 L60,60" stroke-dasharray="1,1"/>
+                                <path d="M40,75 L40,65" stroke-dasharray="1,1"/>
+                                <path d="M15,65 L20,60" stroke-dasharray="1,1"/>
+                                <path d="M5,40 L15,40" stroke-dasharray="1,1"/>
+                                <path d="M15,15 L20,20" stroke-dasharray="1,1"/>
+                            </g>
+                            <circle cx="40" cy="40" r="18" fill="#FFD700" stroke="#FFA500" stroke-width="2" filter="url(#sketch)" opacity="0.9">
+                                <animate attributeName="r" values="18;20;18" dur="3s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="35" cy="35" r="2" fill="#FFA500"/>
+                            <circle cx="45" cy="35" r="2" fill="#FFA500"/>
+                            <path d="M32,45 Q40,50 48,45" stroke="#FFA500" stroke-width="1.5" fill="none"/>
+                        </svg>
+                    </div>
+                `;
+            }
+
+            generateHanddrawnClouds() {
+                return `
+                    <svg width="100%" height="100%">
+                        <defs>
+                            <filter id="cloudSketch">
+                                <feTurbulence baseFrequency="0.1" numOctaves="2" result="noise"/>
+                                <feDisplacementMap in="SourceGraphic" in2="noise" scale="2"/>
+                            </filter>
+                        </defs>
+                        <g fill="rgba(255,255,255,0.8)" stroke="#87CEEB" stroke-width="1" filter="url(#cloudSketch)">
+                            <ellipse cx="100" cy="60" rx="40" ry="20" opacity="0.7">
+                                <animateTransform attributeName="transform" type="translate" values="0,0; 50,0; 0,0" dur="20s" repeatCount="indefinite"/>
+                            </ellipse>
+                            <ellipse cx="80" cy="50" rx="25" ry="15" opacity="0.6">
+                                <animateTransform attributeName="transform" type="translate" values="0,0; 30,0; 0,0" dur="25s" repeatCount="indefinite"/>
+                            </ellipse>
+                            <ellipse cx="120" cy="70" rx="30" ry="18" opacity="0.8">
+                                <animateTransform attributeName="transform" type="translate" values="0,0; 40,0; 0,0" dur="18s" repeatCount="indefinite"/>
+                            </ellipse>
+                        </g>
+                    </svg>
+                `;
+            }
+
+            generateHanddrawnThunderstorm() {
+                return `
+                    <svg width="100%" height="100%">
+                        <defs>
+                            <filter id="lightning">
+                                <feTurbulence baseFrequency="0.5" numOctaves="1" result="noise"/>
+                                <feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/>
+                            </filter>
+                        </defs>
+                        <path d="M150,50 L140,100 L155,100 L145,150 L165,100 L150,100 Z" 
+                              fill="#FFFF00" 
+                              stroke="#FFD700" 
+                              stroke-width="1" 
+                              filter="url(#lightning)" 
+                              opacity="0">
+                            <animate attributeName="opacity" values="0;1;0;1;0" dur="0.3s" repeatCount="indefinite" begin="0s"/>
+                        </path>
+                    </svg>
+                `;
+            }
+
+            mapWeatherCodeToType(weatherCode) {
+                if (weatherCode >= 61 && weatherCode <= 82) return 'rain';
+                if (weatherCode >= 71 && weatherCode <= 75) return 'snow';
+                if (weatherCode >= 95 && weatherCode <= 99) return 'thunderstorm';
+                if (weatherCode >= 2 && weatherCode <= 3) return 'cloudy';
+                if (weatherCode === 0) return 'clear';
+                return 'clear';
+            }
+
+            getWeatherEmoji(weatherType) {
+                const emojis = {
+                    'clear': '☀️',
+                    'rain': '🌧️',
+                    'snow': '❄️',
+                    'cloudy': '☁️',
+                    'thunderstorm': '⛈️'
+                };
+                return emojis[weatherType] || '🌤️';
+            }
+
+            getWeatherColor(weatherType) {
+                const colors = {
+                    'clear': '#FFD700',
+                    'rain': '#4682B4',
+                    'snow': '#E6E6FA',
+                    'cloudy': '#87CEEB',
+                    'thunderstorm': '#483D8B'
+                };
+                return colors[weatherType] || '#8b7355';
+            }
+
+            addToGallery(composition) {
+                const gallery = document.getElementById('weatherGallery');
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = composition;
+                wrapper.style.animation = 'fadeInUp 0.8s ease';
+                gallery.appendChild(wrapper);
+            }
+
+            showLoading() {
+                document.getElementById('loadingDiv').style.display = 'block';
+            }
+
+            hideLoading() {
+                document.getElementById('loadingDiv').style.display = 'none';
+            }
+
+            showError(message) {
+                alert(message);
+            }
+        }
+
+        // Global function for city buttons
+        function drawWeather(city) {
+            app.drawWeather(city);
+        }
+
+        // Initialize the app
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new HanddrawnWeatherApp();
+        });
+    </script>
+</body>
+</html>
