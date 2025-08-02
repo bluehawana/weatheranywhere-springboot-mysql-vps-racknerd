@@ -72,6 +72,12 @@ public class CityLandmarkService {
             case "amsterdam" -> "windmill";
             case "berlin" -> "brandenburg gate";
             case "istanbul" -> "hagia sophia";
+            case "gothenburg", "göteborg" -> "poseidon statue";
+            case "stockholm" -> "city hall";
+            case "copenhagen" -> "little mermaid";
+            case "oslo" -> "opera house";
+            case "helsinki" -> "cathedral";
+            case "reykjavik" -> "hallgrimskirkja";
             default -> cityName + " landmark";
         };
     }
@@ -328,9 +334,33 @@ public class CityLandmarkService {
         if (isWeatherTerm(term)) {
             return getWeatherEmoji(term);
         } else {
-            // For city landmarks, return the hardcoded fallback
-            return String.format("<span style='font-size: %dpx;'>📍 %s</span>", size/2, term);
+            // For city landmarks, try to get city-specific emoji first
+            // Extract city name from landmark term (e.g., "poseidon statue" -> "gothenburg")
+            String cityName = extractCityFromLandmarkTerm(term);
+            return getCityEmoji(cityName);
         }
+    }
+    
+    private String extractCityFromLandmarkTerm(String landmarkTerm) {
+        String term = landmarkTerm.toLowerCase();
+        if (term.contains("poseidon")) return "gothenburg";
+        if (term.contains("big ben")) return "london";
+        if (term.contains("eiffel")) return "paris";
+        if (term.contains("statue of liberty")) return "new york";
+        if (term.contains("hollywood")) return "los angeles";
+        if (term.contains("opera house")) return "sydney";
+        if (term.contains("colosseum")) return "rome";
+        if (term.contains("parthenon")) return "athens";
+        if (term.contains("city hall") && term.contains("stockholm")) return "stockholm";
+        if (term.contains("little mermaid")) return "copenhagen";
+        if (term.contains("hallgrimskirkja")) return "reykjavik";
+        
+        // If it ends with " landmark", extract the city name
+        if (term.endsWith(" landmark")) {
+            return term.substring(0, term.length() - " landmark".length());
+        }
+        
+        return term;
     }
     
     private boolean isWeatherTerm(String term) {
@@ -387,6 +417,12 @@ public class CityLandmarkService {
             case "amsterdam" -> "🇳🇱";
             case "berlin" -> "🇩🇪";
             case "istanbul" -> "🇹🇷";
+            case "gothenburg", "göteborg" -> "🇸🇪";
+            case "stockholm" -> "🇸🇪";
+            case "copenhagen" -> "🇩🇰";
+            case "oslo" -> "🇳🇴";
+            case "helsinki" -> "🇫🇮";
+            case "reykjavik" -> "🇮🇸";
             default -> "🏙️";
         };
     }
