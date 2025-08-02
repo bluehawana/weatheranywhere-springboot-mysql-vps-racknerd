@@ -1,0 +1,110 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------< se.CampusMolndal:EasyWeather >--------------------
+[INFO] Building EasyWeather 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.2.4:run (default-cli) > test-compile @ EasyWeather >>>
+[WARNING] The artifact mysql:mysql-connector-java:jar:8.0.33 has been relocated to com.mysql:mysql-connector-j:jar:8.0.33: MySQL Connector/J artifacts moved to reverse-DNS compliant Maven 2+ coordinates.
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ EasyWeather ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 19 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.9.0:compile (default-compile) @ EasyWeather ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 27 source files to /Users/bluehawana/Projects/weatheranywhere/SpringBoot-WeatherApp-HerokuCloud/target/classes
+[INFO] /Users/bluehawana/Projects/weatheranywhere/SpringBoot-WeatherApp-HerokuCloud/src/main/java/se/campusmolndal/easyweather/service/CityService.java: /Users/bluehawana/Projects/weatheranywhere/SpringBoot-WeatherApp-HerokuCloud/src/main/java/se/campusmolndal/easyweather/service/CityService.java uses or overrides a deprecated API.
+[INFO] /Users/bluehawana/Projects/weatheranywhere/SpringBoot-WeatherApp-HerokuCloud/src/main/java/se/campusmolndal/easyweather/service/CityService.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ EasyWeather ---
+[INFO] skip non existing resourceDirectory /Users/bluehawana/Projects/weatheranywhere/SpringBoot-WeatherApp-HerokuCloud/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.9.0:testCompile (default-testCompile) @ EasyWeather ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to /Users/bluehawana/Projects/weatheranywhere/SpringBoot-WeatherApp-HerokuCloud/target/test-classes
+[INFO] 
+[INFO] <<< spring-boot:3.2.4:run (default-cli) < test-compile @ EasyWeather <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.2.4:run (default-cli) @ EasyWeather ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.4)
+
+2025-08-02T19:39:08.588+02:00  INFO 16188 --- [           main] s.c.easyweather.EasyWeatherApplication   : Starting EasyWeatherApplication using Java 21.0.7 with PID 16188 (/Users/bluehawana/Projects/weatheranywhere/SpringBoot-WeatherApp-HerokuCloud/target/classes started by bluehawana in /Users/bluehawana/Projects/weatheranywhere/SpringBoot-WeatherApp-HerokuCloud)
+2025-08-02T19:39:08.589+02:00  INFO 16188 --- [           main] s.c.easyweather.EasyWeatherApplication   : No active profile set, falling back to 1 default profile: "default"
+2025-08-02T19:39:08.933+02:00  INFO 16188 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-08-02T19:39:08.938+02:00  INFO 16188 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-08-02T19:39:08.938+02:00  INFO 16188 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+2025-08-02T19:39:08.955+02:00  INFO 16188 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-08-02T19:39:08.956+02:00  INFO 16188 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 349 ms
+2025-08-02T19:39:09.008+02:00  INFO 16188 --- [           main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
+2025-08-02T19:39:09.156+02:00  INFO 16188 --- [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2025-08-02T19:39:09.249+02:00  INFO 16188 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2025-08-02T19:39:09.252+02:00  INFO 16188 --- [           main] s.c.easyweather.EasyWeatherApplication   : Started EasyWeatherApplication in 0.785 seconds (process running for 0.898)
+2025-08-02T19:39:26.902+02:00  INFO 16188 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-08-02T19:39:26.902+02:00  INFO 16188 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-08-02T19:39:26.902+02:00  INFO 16188 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+Error Message: Table "ALIWEATHER" not found (this database is empty); SQL statement:
+SELECT COUNT(*) FROM aliweather WHERE cityName = ? [42104-224]
+Error Code: 42104
+SQL State: 42S04
+Error Message: Table "ALIWEATHER" not found (this database is empty); SQL statement:
+SELECT COUNT(*) FROM aliweather WHERE cityName = ? [42104-224]
+Error Code: 42104
+SQL State: 42S04
+Error Message: Table "ALIWEATHER" not found (this database is empty); SQL statement:
+SELECT * FROM aliweather WHERE cityName = ? [42104-224]
+Error Code: 42104
+SQL State: 42S04
+Could not retrieve city: London
+Failed to fetch city data for London
+2025-08-02T19:39:26.923+02:00 ERROR 16188 --- [nio-8080-exec-1] s.c.e.controllers.WeatherController      : Failed to fetch weather for city: London
+OpenAI API error: 429 - {
+    "error": {
+        "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+        "type": "insufficient_quota",
+        "param": null,
+        "code": "insufficient_quota"
+    }
+}
+
+AI service failed, using fallback: OpenAI API call failed: 429
+OpenAI API error: 429 - {
+    "error": {
+        "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+        "type": "insufficient_quota",
+        "param": null,
+        "code": "insufficient_quota"
+    }
+}
+
+AI landmark generation failed, using fallback: OpenAI API call failed: 429
+OpenAI API error: 429 - {
+    "error": {
+        "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+        "type": "insufficient_quota",
+        "param": null,
+        "code": "insufficient_quota"
+    }
+}
+
+AI landmark generation failed, using fallback: OpenAI API call failed: 429
+OpenAI API error: 429 - {
+    "error": {
+        "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+        "type": "insufficient_quota",
+        "param": null,
+        "code": "insufficient_quota"
+    }
+}
+
+AI landmark generation failed, using fallback: OpenAI API call failed: 429
