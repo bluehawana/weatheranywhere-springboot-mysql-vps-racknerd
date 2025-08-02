@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Enhanced Weather Demo</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 3em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .demo-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .demo-card h3 {
+            margin-top: 0;
+            color: #FFD700;
+        }
+        .demo-button {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: transform 0.3s ease;
+        }
+        .demo-button:hover {
+            transform: translateY(-2px);
+        }
+        .city-input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .feature-list li:before {
+            content: "✨ ";
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 AI-Enhanced Weather Experience</h1>
+            <p>Experience weather like never before with AI-generated 3D visualizations</p>
+        </div>
+
+        <div class="demo-grid">
+            <div class="demo-card">
+                <h3>🎬 3D Weather Scenes</h3>
+                <p>Immersive 3D environments that adapt to real weather conditions</p>
+                <input type="text" class="city-input" id="city3d" placeholder="Enter city name (e.g., Mohe, Stockholm)">
+                <button class="demo-button" onclick="open3DWeather()">Launch 3D Scene</button>
+            </div>
+
+            <div class="demo-card">
+                <h3>🤖 AI Weather Descriptions</h3>
+                <p>Poetic, AI-generated descriptions that bring weather to life</p>
+                <input type="text" class="city-input" id="cityAI" placeholder="Enter city name">
+                <button class="demo-button" onclick="getAIDescription()">Generate AI Description</button>
+                <div id="aiResult" style="margin-top: 15px; font-style: italic;"></div>
+            </div>
+
+            <div class="demo-card">
+                <h3>🌟 Enhanced Features</h3>
+                <ul class="feature-list">
+                    <li>Real-time weather particle systems</li>
+                    <li>Dynamic lighting based on conditions</li>
+                    <li>City-specific atmospheric effects</li>
+                    <li>AI-powered scene generation</li>
+                    <li>Interactive 3D environments</li>
+                </ul>
+            </div>
+
+            <div class="demo-card">
+                <h3>🚀 Coming Soon</h3>
+                <ul class="feature-list">
+                    <li>Voice narration of weather</li>
+                    <li>AR weather overlays</li>
+                    <li>Social sharing of 3D scenes</li>
+                    <li>Weather forecast animations</li>
+                    <li>City landmark integration</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <h3>🎯 Try These Demo Cities</h3>
+            <p>Experience different weather conditions with these pre-configured examples:</p>
+            <button class="demo-button" onclick="demo3D('Mohe')">❄️ Mohe (Winter)</button>
+            <button class="demo-button" onclick="demo3D('Stockholm')">🌤️ Stockholm</button>
+            <button class="demo-button" onclick="demo3D('Singapore')">☀️ Singapore</button>
+            <button class="demo-button" onclick="demo3D('London')">🌧️ London</button>
+            <button class="demo-button" onclick="demo3D('Reykjavik')">🌨️ Reykjavik</button>
+        </div>
+    </div>
+
+    <script>
+        function open3DWeather() {
+            const city = document.getElementById('city3d').value;
+            if (!city.trim()) {
+                alert('Please enter a city name!');
+                return;
+            }
+            window.open('/weather/3d?city=' + encodeURIComponent(city), '_blank');
+        }
+
+        function demo3D(city) {
+            window.open('/weather/3d?city=' + encodeURIComponent(city), '_blank');
+        }
+
+        function getAIDescription() {
+            const city = document.getElementById('cityAI').value;
+            if (!city.trim()) {
+                alert('Please enter a city name!');
+                return;
+            }
+            
+            document.getElementById('aiResult').innerHTML = 'Generating AI description...';
+            
+            fetch('/weather/ai-description?city=' + encodeURIComponent(city))
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('aiResult').innerHTML = data;
+                })
+                .catch(error => {
+                    document.getElementById('aiResult').innerHTML = 'Error generating description: ' + error;
+                });
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.demo-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.transition = 'transform 0.3s ease';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

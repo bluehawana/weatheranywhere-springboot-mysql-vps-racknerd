@@ -2,15 +2,26 @@ function fetchWeather() {
     const cityInput = document.getElementById('city');
     const city = cityInput.value;
 
-    $.get("/api/weather?city=" + city, function(data) {
+    if (!city.trim()) {
+        $('#weatherDiv').html("<p>Please enter a city name.</p>");
+        return;
+    }
+
+    // Show loading message
+    $('#weatherDiv').html("<p>Loading weather information...</p>");
+
+    $.get("/api/weather?city=" + encodeURIComponent(city), function(data) {
         // Update the content of the weatherDiv
         $('#weatherDiv').html(data);
-
-        // Redirect to a new URL with the city parameter
-        window.location = "/weather?city=" + city;
     })
         .fail(function(xhr, status, error) {
             console.error('Error:', error);
-            $('#weatherDiv').html("<p>Failed to fetch weather information.</p>");
+            let errorMessage = "Failed to fetch weather information.";
+            if (xhr.status === 404) {
+                errorMessage = "City not found. Please check the spelling and try again.";
+            } else if (xhr.status === 500) {
+                errorMessage = "Server error. Please try again later.";
+            }
+            $('#weatherDiv').html("<p>" + errorMessage + "</p>");
         });
-    }
+}

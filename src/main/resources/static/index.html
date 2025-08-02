@@ -24,10 +24,29 @@
                     });
             });
         });
+
+        function get3DWeather() {
+            var city = $('#city').val();
+            if (!city.trim()) {
+                alert('Please enter a city name first!');
+                return;
+            }
+            
+            // Open 3D weather in new tab
+            window.open('/weather/3d?city=' + encodeURIComponent(city), '_blank');
+        }
     </script>
 </head>
 <body>
 <h1>Welcome to the Weather Client!</h1>
+<div style="text-align: center; margin: 20px 0;">
+    <a href="/immersive.html" style="display: inline-block; padding: 15px 30px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; text-decoration: none; border-radius: 25px; margin: 10px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        🚀 Try Immersive Experience
+    </a>
+    <a href="/demo.html" style="display: inline-block; padding: 15px 30px; background: linear-gradient(45deg, #f093fb, #f5576c); color: white; text-decoration: none; border-radius: 25px; margin: 10px; font-weight: bold; box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3); transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        🎬 View Demo Features
+    </a>
+</div>
 <pre class="ascii-art">
     ____    __    ____  _______     ___   .___________. __    __     _______ .______              ___      .__   __. ____    ____ ____    __    ____  __    __   _______ .______       _______
     \   \  /  \  /   / |   ____|   /   \  |           ||  |  |  | |   ____||   _  \              /   \     |  \ |  | \   \  /   / \   \  /  \  /   / |  |  |  | |   ____||   _  \     |   ____|
@@ -74,7 +93,8 @@ _.-'       .-'    .'   .'    /
 <form id="weatherForm" method="get">
     <label for="city">Enter a city:</label>
     <input type="text" id="city" name="city">
-    <input type="submit" value="Submit">
+    <input type="submit" value="Get Weather">
+    <button type="button" onclick="get3DWeather()" style="margin-left: 10px; background: linear-gradient(45deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">🌍 3D Weather</button>
 </form>
 <div id="weatherDiv"></div> <!-- This div will contain the weather information -->
 </body>

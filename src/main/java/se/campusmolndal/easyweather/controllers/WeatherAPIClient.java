@@ -39,29 +39,41 @@ public class WeatherAPIClient {
     }
 
     public WeatherInfo fetchWeather(String cityName) {
-        City city = fetchAndSaveCityData(cityName);
-        if (city == null) {
-            throw new RuntimeException("Failed to fetch city data for " + cityName);
-        }
-
-        double latitude = city.getLatitude();
-        double longitude = city.getLongitude();
-        URL apiUrl = null;
         try {
-            apiUrl = new URL(API_BASE_URL + "?latitude=" + city.getLatitude() + "&longitude=" + city.getLongitude() + "&current=temperature_2m,weather_code,wind_speed_10m"+"&timezone=auto");
+            City city = fetchAndSaveCityData(cityName);
+            if (city == null) {
+                System.err.println("Failed to fetch city data for " + cityName);
+                return null;
+            }
+
+            double latitude = city.getLatitude();
+            double longitude = city.getLongitude();
+            URL apiUrl = new URL(API_BASE_URL + "?latitude=" + latitude + "&longitude=" + longitude + "&current=temperature_2m,weather_code,wind_speed_10m&timezone=auto");
             HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
 
             connection.setRequestMethod("GET");
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(5000);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
 
             try {
-                return createConnection(connection);
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    return createConnection(connection);
+                } else {
+                    System.err.println("Weather API returned error code: " + responseCode);
+                    return null;
+                }
             } finally {
                 connection.disconnect();
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to fetch weather data", e);
+            System.err.println("Failed to fetch weather data: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        } catch (Exception e) {
+            System.err.println("Unexpected error fetching weather: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -72,9 +84,24 @@ public class WeatherAPIClient {
                 return databaseHandler.getCityFromDatabase(cityName);
             }
 
+            // Check if API key is configured
+            if (opencageApiKey == null || opencageApiKey.equals("YOUR_OPENCAGE_API_KEY_HERE")) {
+                System.err.println("OpenCage API key not configured. Please set opencage.api.key in application.properties");
+                return null;
+            }
+
             URL url = new URL(OPENCAGE_GEOCODING_API_URL + "?q=" + URLEncoder.encode(cityName, "UTF-8") + "&key=" + opencageApiKey);
             HttpURLConnection geocodingConnection = (HttpURLConnection) url.openConnection();
             geocodingConnection.setRequestMethod("GET");
+            geocodingConnection.setConnectTimeout(10000);
+            geocodingConnection.setReadTimeout(10000);
+
+            int responseCode = geocodingConnection.getResponseCode();
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                System.err.println("Geocoding API returned error code: " + responseCode);
+                geocodingConnection.disconnect();
+                return null;
+            }
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(geocodingConnection.getInputStream()));
             StringBuilder response = new StringBuilder();
@@ -86,18 +113,27 @@ public class WeatherAPIClient {
             geocodingConnection.disconnect();
 
             JSONObject geocodingResponse = new JSONObject(response.toString());
-            if (geocodingResponse.getJSONArray("results").length() > 0) {
-                JSONObject result = geocodingResponse.getJSONArray("results").getJSONObject(0);
+            JSONArray results = geocodingResponse.getJSONArray("results");
+            
+            if (results.length() > 0) {
+                JSONObject result = results.getJSONObject(0);
                 double latitude = result.getJSONObject("geometry").getDouble("lat");
                 double longitude = result.getJSONObject("geometry").getDouble("lng");
 
                 City city = databaseHandler.saveCity(cityName, latitude, longitude);
                 return city;
+            } else {
+                System.err.println("No geocoding results found for city: " + cityName);
+                return null;
             }
         } catch (IOException e) {
+            System.err.println("IO error during geocoding: " + e.getMessage());
             e.printStackTrace();
         } catch (SQLException e) {
-            // Log or handle the SQLException appropriately
+            System.err.println("Database error: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Unexpected error during geocoding: " + e.getMessage());
             e.printStackTrace();
         }
 

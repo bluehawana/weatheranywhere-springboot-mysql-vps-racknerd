@@ -22,18 +22,30 @@ public class WeatherController {
         this.weatherAPIClient = weatherAPIClient;
     }
 
-    @GetMapping("/weather")
+    @GetMapping({"/weather", "/api/weather"})
     public ResponseEntity<String> getWeather(@RequestParam String city) {
-        WeatherInfo weatherInfo = weatherAPIClient.fetchWeather(city);
-        if (weatherInfo != null) {
-            log.info("Weather for {}: Temperature = {}, Wind Speed = {}, Description = {}",
-                    city, weatherInfo.getTemperature(), weatherInfo.getWindSpeed(), weatherInfo.getDescription());
+        try {
+            if (city == null || city.trim().isEmpty()) {
+                log.warn("Empty city parameter received");
+                return ResponseEntity.badRequest().body("<p>City name is required</p>");
+            }
 
-            String htmlContent = buildHtml(city, weatherInfo);
-            return ResponseEntity.ok().body(htmlContent);
-        } else {
-            log.error("Failed to fetch weather for city: {}", city);
-            return ResponseEntity.notFound().build();
+            WeatherInfo weatherInfo = weatherAPIClient.fetchWeather(city.trim());
+            if (weatherInfo != null) {
+                log.info("Weather for {}: Temperature = {}, Wind Speed = {}, Description = {}",
+                        city, weatherInfo.getTemperature(), weatherInfo.getWindSpeed(), weatherInfo.getDescription());
+
+                String htmlContent = buildHtml(city, weatherInfo);
+                return ResponseEntity.ok().body(htmlContent);
+            } else {
+                log.error("Failed to fetch weather for city: {}", city);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("<p>Weather information not found for city: " + city + "</p>");
+            }
+        } catch (Exception e) {
+            log.error("Error fetching weather for city: {}", city, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("<p>Error retrieving weather information. Please try again later.</p>");
         }
     }
 

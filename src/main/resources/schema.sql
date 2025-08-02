@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS aliweather (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    cityName VARCHAR(255) NOT NULL UNIQUE,
+    latitude DOUBLE NOT NULL,
+    longitude DOUBLE NOT NULL
+);
