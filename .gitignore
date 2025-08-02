@@ -34,6 +34,18 @@ build/
 
 
 
-## application.properties
-/application.properties
-/src/main/resources/application.properties
+# Sensitive configuration files - NEVER commit these!
+application.properties
+application-*.properties
+src/main/resources/application.properties
+src/main/resources/application-*.properties
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+*.env
+
+# Database and API keys
+database.properties
+api-keys.properties

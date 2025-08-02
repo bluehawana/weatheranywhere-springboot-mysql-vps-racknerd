@@ -46,12 +46,47 @@ To use the application, simply input the name of the city you want to check the 
 - Verify the city name spelling
 - Try using the full city name or include country (e.g., "Stockholm, Sweden")
 
-### Local Development
+### Local Development Setup
 
-1. Clone the repository
-2. Set up your OpenCage API key in `application.properties`
-3. Run with Maven: `./mvnw spring-boot:run`
-4. Access the application at `http://localhost:8080`
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/bluehawana/SpringBoot-WeatherApp-HerokuCloud.git
+   cd SpringBoot-WeatherApp-HerokuCloud
+   ```
+
+2. **Set up configuration**
+   ```bash
+   # Copy the template file
+   cp src/main/resources/application.properties.template src/main/resources/application.properties
+   
+   # Edit application.properties and add your API keys:
+   # - Get OpenCage API key from https://opencagedata.com/
+   # - Get OpenAI API key from https://platform.openai.com/
+   ```
+
+3. **Run the application**
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+
+4. **Access the application**
+   - Main app: `http://localhost:8080`
+   - Immersive experience: `http://localhost:8080/immersive.html`
+   - Demo page: `http://localhost:8080/demo.html`
+
+### Environment Variables for Production
+
+Set these environment variables in your production environment (Heroku):
+
+```bash
+# Required
+OPENCAGE_API_KEY=your_opencage_api_key_here
+JAWSDB_URL=mysql://username:password@host:port/database
+
+# Optional
+OPENAI_API_KEY=your_openai_api_key_here
+DATABASE_DRIVER=com.mysql.cj.jdbc.Driver
+```
 
 ## Deployment
 
