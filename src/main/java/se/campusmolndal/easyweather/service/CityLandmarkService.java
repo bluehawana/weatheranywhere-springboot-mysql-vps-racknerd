@@ -38,35 +38,35 @@ public class CityLandmarkService {
 
     public String getWeatherIconPath(String weatherDescription) {
         if (weatherDescription == null || weatherDescription.isEmpty()) {
-            return "/weather-icons/default.gif";
+            return "/weather-icons/default.svg";
         }
         
         String lowercaseDesc = weatherDescription.toLowerCase();
         
-        // Map to static file paths
+        // Map to static file paths (using SVG for now, can replace with GIF later)
         if (lowercaseDesc.contains("clear") || lowercaseDesc.contains("sunny")) {
-            return "/weather-icons/sunny.gif";
+            return "/weather-icons/sunny.svg";
         }
         if (lowercaseDesc.contains("cloud") || lowercaseDesc.contains("overcast")) {
-            return "/weather-icons/cloudy.gif";
+            return "/weather-icons/cloudy.svg";
         }
         if (lowercaseDesc.contains("rain") || lowercaseDesc.contains("drizzle")) {
-            return "/weather-icons/rainy.gif";
+            return "/weather-icons/rainy.svg";
         }
         if (lowercaseDesc.contains("snow")) {
-            return "/weather-icons/snowy.gif";
+            return "/weather-icons/snowy.svg";
         }
         if (lowercaseDesc.contains("storm") || lowercaseDesc.contains("thunder")) {
-            return "/weather-icons/stormy.gif";
+            return "/weather-icons/rainy.svg";  // Use rainy for storms temporarily
         }
         if (lowercaseDesc.contains("fog") || lowercaseDesc.contains("mist")) {
-            return "/weather-icons/foggy.gif";
+            return "/weather-icons/cloudy.svg";  // Use cloudy for fog temporarily
         }
         if (lowercaseDesc.contains("wind")) {
-            return "/weather-icons/windy.gif";
+            return "/weather-icons/cloudy.svg";  // Use cloudy for windy temporarily
         }
         
-        return "/weather-icons/default.gif";
+        return "/weather-icons/default.svg";
     }
 
     public String generateCombinedWeatherDisplay(String cityName, WeatherInfo weatherInfo) {

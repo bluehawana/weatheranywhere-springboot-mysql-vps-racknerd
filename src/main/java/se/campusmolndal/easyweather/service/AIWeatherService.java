@@ -113,20 +113,96 @@ public class AIWeatherService {
     }
 
     private String generateFallbackLandmarkSVG(String city, WeatherInfo weatherInfo) {
-        // Simple fallback SVG with city name and weather emoji
-        String weatherEmoji = getWeatherEmoji(weatherInfo.getDescription());
+        // City-specific fallback landmarks
+        String landmarkSVG = switch (city.toLowerCase()) {
+            case "london" -> generateLondonBigBen();
+            case "paris" -> generateParisTower();
+            case "tokyo" -> generateTokyoTower();
+            case "new york", "newyork" -> generateNYStatueOfLiberty();
+            case "sydney" -> generateSydneyOperaHouse();
+            default -> generateGenericLandmark(city);
+        };
         
-        return String.format("""
-            <svg viewBox="0 0 400 300" style="background: linear-gradient(to bottom, #87CEEB, #98FB98);">
-                <rect x="150" y="120" width="100" height="80" fill="#696969" stroke="#333" stroke-width="2"/>
-                <polygon points="150,120 200,80 250,120" fill="#8B4513"/>
-                <rect x="180" y="150" width="15" height="25" fill="#654321"/>
-                <rect x="205" y="150" width="15" height="25" fill="#654321"/>
-                <text x="200" y="50" text-anchor="middle" font-size="40">%s</text>
-                <text x="200" y="280" text-anchor="middle" font-size="16" fill="#333">%s</text>
-                <text x="200" y="250" text-anchor="middle" font-size="14" fill="#666">%.1f°C • %s</text>
+        return landmarkSVG;
+    }
+    
+    private String generateLondonBigBen() {
+        return """
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <rect x="40" y="20" width="20" height="60" fill="none" stroke="#000000" stroke-width="2"/>
+                <rect x="35" y="75" width="30" height="15" fill="none" stroke="#000000" stroke-width="2"/>
+                <polygon points="35,20 50,10 65,20" fill="none" stroke="#000000" stroke-width="2"/>
+                <circle cx="50" cy="35" r="8" fill="none" stroke="#000000" stroke-width="1.5"/>
+                <line x1="50" y1="35" x2="50" y2="30" stroke="#000000" stroke-width="1"/>
+                <line x1="50" y1="35" x2="54" y2="35" stroke="#000000" stroke-width="1"/>
+                <text x="50" y="95" text-anchor="middle" font-size="6" fill="#000000">Big Ben</text>
             </svg>
-            """, weatherEmoji, city, weatherInfo.getTemperature(), weatherInfo.getDescription());
+            """;
+    }
+    
+    private String generateParisTower() {
+        return """
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <polygon points="50,10 45,30 55,30" fill="none" stroke="#000000" stroke-width="2"/>
+                <polygon points="40,30 60,30 45,50 55,50" fill="none" stroke="#000000" stroke-width="2"/>
+                <polygon points="35,50 65,50 25,80 75,80" fill="none" stroke="#000000" stroke-width="2"/>
+                <line x1="45" y1="30" x2="45" y2="50" stroke="#000000" stroke-width="1"/>
+                <line x1="55" y1="30" x2="55" y2="50" stroke="#000000" stroke-width="1"/>
+                <line x1="40" y1="40" x2="60" y2="40" stroke="#000000" stroke-width="1"/>
+                <text x="50" y="95" text-anchor="middle" font-size="6" fill="#000000">Eiffel Tower</text>
+            </svg>
+            """;
+    }
+    
+    private String generateTokyoTower() {
+        return """
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <polygon points="50,15 40,35 60,35" fill="none" stroke="#000000" stroke-width="2"/>
+                <polygon points="35,35 65,35 30,70 70,70" fill="none" stroke="#000000" stroke-width="2"/>
+                <rect x="47" y="70" width="6" height="15" fill="none" stroke="#000000" stroke-width="2"/>
+                <line x1="40" y1="50" x2="60" y2="50" stroke="#000000" stroke-width="1"/>
+                <circle cx="50" cy="25" r="3" fill="none" stroke="#000000" stroke-width="1"/>
+                <text x="50" y="95" text-anchor="middle" font-size="6" fill="#000000">Tokyo Tower</text>
+            </svg>
+            """;
+    }
+    
+    private String generateNYStatueOfLiberty() {
+        return """
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <ellipse cx="50" cy="45" rx="8" ry="12" fill="none" stroke="#000000" stroke-width="2"/>
+                <rect x="45" y="55" width="10" height="25" fill="none" stroke="#000000" stroke-width="2"/>
+                <circle cx="50" cy="35" r="5" fill="none" stroke="#000000" stroke-width="2"/>
+                <line x1="40" y1="30" x2="50" y2="25" stroke="#000000" stroke-width="2"/>
+                <polygon points="45,25 50,15 55,25" fill="none" stroke="#000000" stroke-width="1"/>
+                <text x="50" y="95" text-anchor="middle" font-size="6" fill="#000000">Statue of Liberty</text>
+            </svg>
+            """;
+    }
+    
+    private String generateSydneyOperaHouse() {
+        return """
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <path d="M20,70 Q30,40 40,70" fill="none" stroke="#000000" stroke-width="2"/>
+                <path d="M35,70 Q45,35 55,70" fill="none" stroke="#000000" stroke-width="2"/>
+                <path d="M50,70 Q60,40 70,70" fill="none" stroke="#000000" stroke-width="2"/>
+                <path d="M65,70 Q75,45 85,70" fill="none" stroke="#000000" stroke-width="2"/>
+                <line x1="15" y1="70" x2="85" y2="70" stroke="#000000" stroke-width="2"/>
+                <text x="50" y="90" text-anchor="middle" font-size="6" fill="#000000">Opera House</text>
+            </svg>
+            """;
+    }
+    
+    private String generateGenericLandmark(String city) {
+        return String.format("""
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <rect x="35" y="60" width="30" height="25" fill="none" stroke="#000000" stroke-width="2"/>
+                <polygon points="30,60 50,40 70,60" fill="none" stroke="#000000" stroke-width="2"/>
+                <rect x="45" y="70" width="4" height="8" fill="none" stroke="#000000" stroke-width="1"/>
+                <rect x="55" y="70" width="4" height="8" fill="none" stroke="#000000" stroke-width="1"/>
+                <text x="50" y="95" text-anchor="middle" font-size="8" fill="#000000">%s</text>
+            </svg>
+            """, city);
     }
 
     private String getWeatherEmoji(String description) {
