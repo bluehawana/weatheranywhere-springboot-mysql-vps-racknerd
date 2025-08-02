@@ -197,30 +197,40 @@ public class CityLandmarkService {
             String nonce = generateNonce();
             String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
             
-            // Parse existing parameters
-            String[] paramPairs = parameters.split("&");
-            StringBuilder allParams = new StringBuilder();
+            // Collect all parameters for sorting
+            java.util.Map<String, String> allParams = new java.util.TreeMap<>();
             
-            // Add query parameters first
+            // Add query parameters
+            String[] paramPairs = parameters.split("&");
             for (String param : paramPairs) {
                 if (!param.isEmpty()) {
-                    if (allParams.length() > 0) allParams.append("&");
-                    allParams.append(param);
+                    String[] keyValue = param.split("=", 2);
+                    if (keyValue.length == 2) {
+                        allParams.put(keyValue[0], keyValue[1]);
+                    }
                 }
             }
             
-            // Add OAuth parameters (must be in alphabetical order)
-            if (allParams.length() > 0) allParams.append("&");
-            allParams.append("oauth_consumer_key=").append(URLEncoder.encode(nounProjectApiKey, StandardCharsets.UTF_8));
-            allParams.append("&oauth_nonce=").append(nonce);
-            allParams.append("&oauth_signature_method=HMAC-SHA1");
-            allParams.append("&oauth_timestamp=").append(timestamp);
-            allParams.append("&oauth_version=1.0");
+            // Add OAuth parameters
+            allParams.put("oauth_consumer_key", nounProjectApiKey);
+            allParams.put("oauth_nonce", nonce);
+            allParams.put("oauth_signature_method", "HMAC-SHA1");
+            allParams.put("oauth_timestamp", timestamp);
+            allParams.put("oauth_version", "1.0");
+            
+            // Build sorted parameter string
+            StringBuilder sortedParams = new StringBuilder();
+            for (java.util.Map.Entry<String, String> entry : allParams.entrySet()) {
+                if (sortedParams.length() > 0) sortedParams.append("&");
+                sortedParams.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8))
+                          .append("=")
+                          .append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
+            }
             
             // Create signature base string
             String signatureBaseString = method + "&" + 
                 URLEncoder.encode(baseUrl, StandardCharsets.UTF_8) + "&" + 
-                URLEncoder.encode(allParams.toString(), StandardCharsets.UTF_8);
+                URLEncoder.encode(sortedParams.toString(), StandardCharsets.UTF_8);
             
             // Create signing key (consumer secret + "&" + token secret, but we have no token secret)
             String signingKey = URLEncoder.encode(nounProjectApiSecret, StandardCharsets.UTF_8) + "&";
