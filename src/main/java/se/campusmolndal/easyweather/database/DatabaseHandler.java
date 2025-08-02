@@ -30,7 +30,7 @@ public class DatabaseHandler {
     }
 
     public boolean cityExists(String cityName) {
-        String checkCitySql = "SELECT COUNT(*) FROM cities WHERE cityName = ?";
+        String checkCitySql = "SELECT COUNT(*) FROM aliweather WHERE cityName = ?";
         try (Connection conn = dataSource.getConnection()) {
             // Don't set catalog - use the default database from connection URL
             try (PreparedStatement checkCityStmt = conn.prepareStatement(checkCitySql)) {
@@ -51,7 +51,7 @@ public class DatabaseHandler {
         String input = cityName;
         City city = CityManager.getCity(input);
 
-        String getCitySql = "SELECT * FROM cities WHERE cityName = ?";
+        String getCitySql = "SELECT * FROM aliweather WHERE cityName = ?";
         try (Connection conn = dataSource.getConnection()) {
             // Don't set catalog - use the default database from connection URL
             try (PreparedStatement getCityStmt = conn.prepareStatement(getCitySql)) {
@@ -74,8 +74,8 @@ public class DatabaseHandler {
 
     //We need to avoid SQL injection attacks, so we use a prepared statement
     public City saveCity(String cityName, double latitude, double longitude) throws SQLException, IOException {
-        String checkCitySql = "SELECT COUNT(*) FROM cities WHERE cityName = ?";
-        String insertCitySql = "INSERT INTO cities (cityName, latitude, longitude) VALUES (?, ?, ?)";
+        String checkCitySql = "SELECT COUNT(*) FROM aliweather WHERE cityName = ?";
+        String insertCitySql = "INSERT INTO aliweather (cityName, latitude, longitude) VALUES (?, ?, ?)";
 
         try (Connection conn = dataSource.getConnection()) {
             // Don't set catalog - use the default database from connection URL
