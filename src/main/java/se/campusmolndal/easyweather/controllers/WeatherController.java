@@ -51,11 +51,37 @@ public class WeatherController {
 
     private String buildHtml(String city, WeatherInfo weatherInfo) {
         StringBuilder sb = new StringBuilder();
-        sb.append("<div>");
+        
+        // Add CSS for better styling
+        sb.append("<style>")
+          .append(".weather-container { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }")
+          .append(".weather-header { text-align: center; margin-bottom: 20px; }")
+          .append(".weather-data { background: #f0f8ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; }")
+          .append(".landmark-section { text-align: center; }")
+          .append("</style>");
+        
+        sb.append("<div class='weather-container'>");
+        sb.append("<div class='weather-header'>");
         sb.append("<h2>Weather of ").append(city).append("</h2>");
-        sb.append("<p>Temperature: ").append(weatherInfo.getTemperature()).append("°C</p>");
-        sb.append("<p>Wind Speed: ").append(weatherInfo.getWindSpeed()).append(" m/s</p>");
-        sb.append("<p>Description: ").append(weatherInfo.getDescription()).append("</p>");
+        sb.append("</div>");
+        
+        sb.append("<div class='weather-data'>");
+        sb.append("<p><strong>Temperature:</strong> ").append(weatherInfo.getTemperature()).append("°C</p>");
+        sb.append("<p><strong>Wind Speed:</strong> ").append(weatherInfo.getWindSpeed()).append(" m/s</p>");
+        sb.append("<p><strong>Description:</strong> ").append(weatherInfo.getDescription()).append("</p>");
+        sb.append("</div>");
+        
+        // Add landmark animation section
+        sb.append("<div class='landmark-section'>");
+        sb.append("<div id='landmark-animation'>Loading landmark...</div>");
+        sb.append("<script>");
+        sb.append("fetch('/weather/landmark?city=").append(city).append("')")
+          .append(".then(response => response.text())")
+          .append(".then(html => document.getElementById('landmark-animation').innerHTML = html)")
+          .append(".catch(error => document.getElementById('landmark-animation').innerHTML = '<p>Landmark animation unavailable</p>');");
+        sb.append("</script>");
+        sb.append("</div>");
+        
         sb.append("</div>");
         return sb.toString();
     }

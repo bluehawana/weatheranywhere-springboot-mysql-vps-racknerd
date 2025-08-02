@@ -10,19 +10,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import se.campusmolndal.easyweather.models.WeatherInfo;
 import se.campusmolndal.easyweather.service.WeatherVisualizationService;
+import se.campusmolndal.easyweather.service.LandmarkAnimationService;
+import se.campusmolndal.easyweather.service.LandmarkAnimationService;
 
 @RestController
 public class WeatherVisualizationController {
 
     private final WeatherAPIClient weatherAPIClient;
     private final WeatherVisualizationService visualizationService;
+    private final LandmarkAnimationService landmarkAnimationService;
     private static final Logger log = LoggerFactory.getLogger(WeatherVisualizationController.class);
 
     @Autowired
     public WeatherVisualizationController(WeatherAPIClient weatherAPIClient, 
-                                        WeatherVisualizationService visualizationService) {
+                                        WeatherVisualizationService visualizationService,
+                                        LandmarkAnimationService landmarkAnimationService) {
         this.weatherAPIClient = weatherAPIClient;
         this.visualizationService = visualizationService;
+        this.landmarkAnimationService = landmarkAnimationService;
     }
 
     @GetMapping("/weather/3d")
@@ -67,4 +72,26 @@ public class WeatherVisualizationController {
                     .body("Unable to generate weather story at this time. Please try again later.");
         }
     }
+
+    @GetMapping("/weather/landmark")
+    public ResponseEntity<String> getLandmarkAnimation(@RequestParam String city) {
+        try {
+            WeatherInfo weatherInfo = weatherAPIClient.fetchWeather(city.trim());
+            if (weatherInfo != null) {
+                String landmarkHtml = landmarkAnimationService.generateLandmarkAnimation(city, weatherInfo);
+                String fullHtml = landmarkAnimationService.generateLandmarkCSS() + landmarkHtml;
+                return ResponseEntity.ok()
+                        .header("Content-Type", "text/html; charset=utf-8")
+                        .body(fullHtml);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Weather information not found for city: " + city);
+            }
+        } catch (Exception e) {
+            log.error("Error generating landmark animation for city: {}", city, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Unable to generate landmark animation at this time.");
+        }
+    }
+
 }

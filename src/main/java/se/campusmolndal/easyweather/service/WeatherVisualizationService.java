@@ -9,6 +9,9 @@ public class WeatherVisualizationService {
 
     @Autowired
     private AIWeatherService aiWeatherService;
+    
+    @Autowired
+    private LandmarkAnimationService landmarkAnimationService;
 
     public String generate3DWeatherScene(String city, WeatherInfo weatherInfo) {
         // Generate 3D scene based on weather conditions
@@ -52,13 +55,15 @@ public class WeatherVisualizationService {
             .append("<html><head>")
             .append("<title>3D Weather - ").append(city).append("</title>")
             .append("<script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'></script>")
+            .append(landmarkAnimationService.generateLandmarkCSS())
             .append("<style>")
             .append("body { margin: 0; padding: 0; background: linear-gradient(135deg, #74b9ff, #0984e3); }")
             .append("#weather-container { position: relative; width: 100vw; height: 100vh; }")
             .append("#weather-info { position: absolute; top: 20px; left: 20px; color: white; font-family: Arial; z-index: 100; }")
             .append("#weather-info h1 { font-size: 2.5em; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }")
             .append("#weather-info p { font-size: 1.2em; margin: 5px 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }")
-            .append("#ai-description { position: absolute; bottom: 20px; left: 20px; right: 20px; color: white; font-family: Arial; font-style: italic; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }")
+            .append("#ai-description { position: absolute; top: 20px; right: 20px; width: 300px; color: white; font-family: Arial; font-style: italic; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; }")
+            .append("#landmark-section { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); }")
             .append("</style>")
             .append("</head><body>")
             .append("<div id='weather-container'>")
@@ -69,7 +74,11 @@ public class WeatherVisualizationService {
             .append("<p>Conditions: ").append(weatherInfo.getDescription()).append("</p>")
             .append("</div>")
             .append("<div id='ai-description'>")
-            .append(generateAIDescription(city, weatherInfo))
+            .append("<h3>🤖 AI Weather Story</h3>")
+            .append("<p>").append(generateAIDescription(city, weatherInfo)).append("</p>")
+            .append("</div>")
+            .append("<div id='landmark-section'>")
+            .append(landmarkAnimationService.generateLandmarkAnimation(city, weatherInfo))
             .append("</div>")
             .append("</div>")
             .append(generate3DScript(sceneType, timeOfDay, weatherInfo))
