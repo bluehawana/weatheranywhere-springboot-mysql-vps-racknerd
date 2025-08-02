@@ -10,16 +10,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import se.campusmolndal.easyweather.models.WeatherInfo;
 import se.campusmolndal.easyweather.controllers.WeatherAPIClient;
+import se.campusmolndal.easyweather.service.CityLandmarkService;
 
 @RestController
 public class WeatherController {
 
     private final WeatherAPIClient weatherAPIClient;
+    private final CityLandmarkService cityLandmarkService;
     private static final Logger log = LoggerFactory.getLogger(WeatherController.class);
 
     @Autowired
-    public WeatherController(WeatherAPIClient weatherAPIClient) {
+    public WeatherController(WeatherAPIClient weatherAPIClient, CityLandmarkService cityLandmarkService) {
         this.weatherAPIClient = weatherAPIClient;
+        this.cityLandmarkService = cityLandmarkService;
     }
 
     @GetMapping({"/weather", "/api/weather"})
@@ -69,17 +72,24 @@ public class WeatherController {
         sb.append("<p><strong>Temperature:</strong> ").append(weatherInfo.getTemperature()).append("°C</p>");
         sb.append("<p><strong>Wind Speed:</strong> ").append(weatherInfo.getWindSpeed()).append(" m/s</p>");
         sb.append("<p><strong>Description:</strong> ").append(weatherInfo.getDescription()).append("</p>");
+        
+        // Add weather icon
+        String weatherIconPath = cityLandmarkService.getWeatherIconPath(weatherInfo.getDescription());
+        sb.append("<div style='text-align: center; margin: 15px 0;'>");
+        sb.append("<img src='").append(weatherIconPath).append("' alt='Weather Icon' ");
+        sb.append("style='width: 64px; height: 64px; object-fit: contain;' ");
+        sb.append("onerror=\"this.style.display='none'\" />");
         sb.append("</div>");
         
-        // Add landmark animation section
+        sb.append("</div>");
+        
+        // Add landmark section  
         sb.append("<div class='landmark-section'>");
-        sb.append("<div id='landmark-animation'>Loading landmark...</div>");
-        sb.append("<script>");
-        sb.append("fetch('/weather/landmark?city=").append(city).append("')")
-          .append(".then(response => response.text())")
-          .append(".then(html => document.getElementById('landmark-animation').innerHTML = html)")
-          .append(".catch(error => document.getElementById('landmark-animation').innerHTML = '<p>Landmark animation unavailable</p>');");
-        sb.append("</script>");
+        sb.append("<h3>").append(city).append(" Landmark</h3>");
+        String landmarkSVG = cityLandmarkService.getCityLandmarkSVG(city, weatherInfo);
+        sb.append("<div style='display: inline-block; margin: 15px 0;'>");
+        sb.append(landmarkSVG);
+        sb.append("</div>");
         sb.append("</div>");
         
         sb.append("</div>");
