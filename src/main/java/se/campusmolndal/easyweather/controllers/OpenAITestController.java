@@ -98,8 +98,22 @@ public class OpenAITestController {
             // Create test weather info
             WeatherInfo testWeather = new WeatherInfo(18.0, 4.5, "partly cloudy", 2);
             
-            // Generate combined display
-            String combinedHTML = cityLandmarkService.generateCombinedWeatherDisplay(city, testWeather);
+            // Generate simple icon display
+            StringBuilder combinedHTML = new StringBuilder();
+            combinedHTML.append("<h2>Weather of ").append(city).append("</h2>");
+            combinedHTML.append("<p>Temperature: ").append(testWeather.getTemperature()).append("°C</p>");
+            combinedHTML.append("<p>Wind Speed: ").append(testWeather.getWindSpeed()).append(" m/s</p>");
+            combinedHTML.append("<p>Description: ").append(testWeather.getDescription()).append("</p>");
+            
+            // Add weather icon
+            combinedHTML.append("<div style='text-align: center; margin: 15px 0;'>");
+            combinedHTML.append(cityLandmarkService.getWeatherIcon(testWeather.getDescription()));
+            combinedHTML.append("</div>");
+            
+            // Add city icon
+            combinedHTML.append("<div style='text-align: center; margin: 15px 0;'>");
+            combinedHTML.append(cityLandmarkService.getCityIcon(city));
+            combinedHTML.append("</div>");
             
             // Wrap in full HTML
             StringBuilder result = new StringBuilder();
