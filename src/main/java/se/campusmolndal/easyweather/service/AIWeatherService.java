@@ -216,6 +216,63 @@ public class AIWeatherService {
         return "🌤️";
     }
 
+    public String callOpenAIForLandmark(String prompt) throws Exception {
+        if (openaiApiKey == null || openaiApiKey.isEmpty()) {
+            throw new RuntimeException("OpenAI API key not configured");
+        }
+        
+        String requestBody = String.format("""
+            {
+                "model": "gpt-3.5-turbo",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a geographic expert. When asked about city landmarks, respond with ONLY the landmark name in 2-3 words. No explanations, descriptions, or extra text."
+                    },
+                    {
+                        "role": "user",
+                        "content": "%s"
+                    }
+                ],
+                "max_tokens": 10,
+                "temperature": 0.1
+            }
+            """, prompt.replace("\"", "\\\""));
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.openai.com/v1/chat/completions"))
+                .header("Authorization", "Bearer " + openaiApiKey)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        
+        if (response.statusCode() == 200) {
+            try {
+                JsonNode jsonResponse = objectMapper.readTree(response.body());
+                JsonNode choices = jsonResponse.get("choices");
+                if (choices != null && choices.isArray() && choices.size() > 0) {
+                    JsonNode message = choices.get(0).get("message");
+                    if (message != null) {
+                        JsonNode content = message.get("content");
+                        if (content != null) {
+                            return content.asText().trim();
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Error parsing OpenAI landmark response: " + e.getMessage());
+                throw e;
+            }
+        } else {
+            System.err.println("OpenAI Landmark API error: " + response.statusCode() + " - " + response.body());
+            throw new RuntimeException("OpenAI API call failed: " + response.statusCode());
+        }
+        
+        return null;
+    }
+
     private String callOpenAI(String prompt) throws Exception {
         String requestBody = String.format("""
             {

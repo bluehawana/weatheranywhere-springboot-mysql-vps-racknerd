@@ -51,6 +51,13 @@ public class CityLandmarkService {
     }
     
     private String getOptimalCityTerm(String cityName) {
+        // Use AI to determine the best landmark for unknown cities
+        String aiLandmark = getAILandmarkSuggestion(cityName);
+        if (aiLandmark != null && !aiLandmark.isEmpty()) {
+            return aiLandmark;
+        }
+        
+        // Fallback to predefined mappings for common cities
         return switch (cityName.toLowerCase()) {
             case "london" -> "big ben";
             case "paris" -> "eiffel tower";
@@ -80,6 +87,39 @@ public class CityLandmarkService {
             case "reykjavik" -> "hallgrimskirkja";
             default -> cityName + " landmark";
         };
+    }
+    
+    private String getAILandmarkSuggestion(String cityName) {
+        try {
+            if (aiWeatherService == null) {
+                return null;
+            }
+            
+            String prompt = String.format(
+                "What is the most famous landmark or monument in %s? " +
+                "Respond with ONLY the landmark name in 2-3 words maximum. " +
+                "Examples: 'eiffel tower', 'big ben', 'statue liberty', 'poseidon statue'. " +
+                "No explanations, just the landmark name.", 
+                cityName
+            );
+            
+            String aiResponse = aiWeatherService.callOpenAIForLandmark(prompt);
+            if (aiResponse != null && !aiResponse.trim().isEmpty()) {
+                // Clean up the response - remove quotes, extra words
+                aiResponse = aiResponse.toLowerCase()
+                    .replaceAll("[\"']", "")
+                    .replaceAll("\\b(the|a|an)\\b", "")
+                    .replaceAll("\\s+", " ")
+                    .trim();
+                
+                System.out.println("AI suggested landmark for " + cityName + ": " + aiResponse);
+                return aiResponse;
+            }
+        } catch (Exception e) {
+            System.err.println("AI landmark suggestion failed for " + cityName + ": " + e.getMessage());
+        }
+        
+        return null;
     }
 
     public String getWeatherIcon(String weatherDescription) {
@@ -397,33 +437,33 @@ public class CityLandmarkService {
     
     private String getCityEmoji(String cityName) {
         return switch (cityName.toLowerCase()) {
-            case "london" -> "🇬🇧";
-            case "paris" -> "🇫🇷";
-            case "tokyo" -> "🇯🇵";
-            case "new york", "newyork" -> "🗽";
-            case "los angeles" -> "🎬";
-            case "sydney" -> "🇦🇺";
-            case "beijing" -> "🇨🇳";
-            case "shanghai" -> "🏙️";
-            case "hong kong" -> "🏙️";
-            case "dubai" -> "🕌";
-            case "mumbai" -> "🇮🇳";
-            case "moscow" -> "🇷🇺";
-            case "rome" -> "🏛️";
-            case "athens" -> "🏛️";
-            case "cairo" -> "🏺";
-            case "rio de janeiro", "rio" -> "🇧🇷";
-            case "barcelona" -> "🇪🇸";
-            case "amsterdam" -> "🇳🇱";
-            case "berlin" -> "🇩🇪";
-            case "istanbul" -> "🇹🇷";
-            case "gothenburg", "göteborg" -> "🇸🇪";
-            case "stockholm" -> "🇸🇪";
-            case "copenhagen" -> "🇩🇰";
-            case "oslo" -> "🇳🇴";
-            case "helsinki" -> "🇫🇮";
-            case "reykjavik" -> "🇮🇸";
-            default -> "🏙️";
+            case "london" -> "🏰"; // Big Ben/Tower
+            case "paris" -> "🗼"; // Eiffel Tower
+            case "tokyo" -> "🗼"; // Tokyo Tower
+            case "new york", "newyork" -> "🗽"; // Statue of Liberty
+            case "los angeles" -> "🎬"; // Hollywood
+            case "sydney" -> "🏛️"; // Opera House
+            case "beijing" -> "🏯"; // Forbidden City
+            case "shanghai" -> "🏙️"; // Skyline
+            case "hong kong" -> "🏙️"; // Skyline
+            case "dubai" -> "🏗️"; // Burj Khalifa
+            case "mumbai" -> "🏛️"; // Gateway of India
+            case "moscow" -> "🏛️"; // Red Square
+            case "rome" -> "🏛️"; // Colosseum
+            case "athens" -> "🏛️"; // Parthenon
+            case "cairo" -> "🏺"; // Pyramid area
+            case "rio de janeiro", "rio" -> "⛪"; // Christ Redeemer
+            case "barcelona" -> "⛪"; // Sagrada Familia
+            case "amsterdam" -> "🌷"; // Windmill/tulips
+            case "berlin" -> "🏛️"; // Brandenburg Gate
+            case "istanbul" -> "🕌"; // Hagia Sophia
+            case "gothenburg", "göteborg" -> "🔱"; // Poseidon statue (trident)
+            case "stockholm" -> "🏛️"; // City Hall
+            case "copenhagen" -> "🧜‍♀️"; // Little Mermaid
+            case "oslo" -> "🏛️"; // Opera House
+            case "helsinki" -> "⛪"; // Cathedral
+            case "reykjavik" -> "⛪"; // Hallgrímskirkja
+            default -> "🏙️"; // Generic city
         };
     }
 }
