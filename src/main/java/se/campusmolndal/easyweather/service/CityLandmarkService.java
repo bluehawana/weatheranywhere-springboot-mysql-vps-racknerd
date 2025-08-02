@@ -193,20 +193,21 @@ public class CityLandmarkService {
     
     private String generateOAuth1Header(String method, String baseUrl, String parameters) {
         try {
-            // OAuth1 parameters
+            // OAuth1 parameters - simplified for request token flow
             String nonce = generateNonce();
             String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
             
             // Collect all parameters for sorting
             java.util.Map<String, String> allParams = new java.util.TreeMap<>();
             
-            // Add query parameters
+            // Add query parameters - decode them first, then re-encode properly
             String[] paramPairs = parameters.split("&");
             for (String param : paramPairs) {
                 if (!param.isEmpty()) {
                     String[] keyValue = param.split("=", 2);
                     if (keyValue.length == 2) {
-                        allParams.put(keyValue[0], keyValue[1]);
+                        // Store decoded values, we'll encode them later
+                        allParams.put(keyValue[0], java.net.URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8));
                     }
                 }
             }
@@ -218,7 +219,7 @@ public class CityLandmarkService {
             allParams.put("oauth_timestamp", timestamp);
             allParams.put("oauth_version", "1.0");
             
-            // Build sorted parameter string
+            // Build sorted parameter string for signature
             StringBuilder sortedParams = new StringBuilder();
             for (java.util.Map.Entry<String, String> entry : allParams.entrySet()) {
                 if (sortedParams.length() > 0) sortedParams.append("&");
@@ -232,17 +233,17 @@ public class CityLandmarkService {
                 URLEncoder.encode(baseUrl, StandardCharsets.UTF_8) + "&" + 
                 URLEncoder.encode(sortedParams.toString(), StandardCharsets.UTF_8);
             
-            // Create signing key (consumer secret + "&" + token secret, but we have no token secret)
+            // Create signing key - for request token (no oauth_token_secret)
             String signingKey = URLEncoder.encode(nounProjectApiSecret, StandardCharsets.UTF_8) + "&";
             
             // Generate signature
             Mac mac = Mac.getInstance("HmacSHA1");
-            SecretKeySpec secretKey = new SecretKeySpec(signingKey.getBytes(), "HmacSHA1");
+            SecretKeySpec secretKey = new SecretKeySpec(signingKey.getBytes(StandardCharsets.UTF_8), "HmacSHA1");
             mac.init(secretKey);
-            byte[] signature = mac.doFinal(signatureBaseString.getBytes());
+            byte[] signature = mac.doFinal(signatureBaseString.getBytes(StandardCharsets.UTF_8));
             String encodedSignature = Base64.getEncoder().encodeToString(signature);
             
-            // Build Authorization header (don't double-encode the signature)
+            // Build Authorization header - simpler format matching RestSharp
             return String.format("OAuth oauth_consumer_key=\"%s\", oauth_nonce=\"%s\", oauth_signature=\"%s\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"%s\", oauth_version=\"1.0\"",
                 nounProjectApiKey, nonce, encodedSignature, timestamp);
                 
