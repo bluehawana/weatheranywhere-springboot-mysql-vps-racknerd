@@ -30,18 +30,76 @@ public class LandmarkAnimationService {
         CITY_LANDMARKS.put("shanghai", "Oriental Pearl Tower and Bund");
         CITY_LANDMARKS.put("beijing", "Forbidden City and Great Wall");
         CITY_LANDMARKS.put("mohe", "Northern lights viewing tower");
+        CITY_LANDMARKS.put("urumqi", "Xinjiang Grand Bazaar");
+        CITY_LANDMARKS.put("xiamen", "Gulangyu Island and Piano Museum");
+        CITY_LANDMARKS.put("shenzhen", "Ping An Finance Centre");
+        CITY_LANDMARKS.put("guangzhou", "Canton Tower");
+        CITY_LANDMARKS.put("hangzhou", "West Lake and Leifeng Pagoda");
+        CITY_LANDMARKS.put("chengdu", "Giant Panda Base");
         
         // American cities
         CITY_LANDMARKS.put("new york", "Statue of Liberty and Empire State Building");
+        CITY_LANDMARKS.put("newyork", "Statue of Liberty and Empire State Building");
+        CITY_LANDMARKS.put("NewYork", "Statue of Liberty and Empire State Building");
+        CITY_LANDMARKS.put("New York", "Statue of Liberty and Empire State Building");
         CITY_LANDMARKS.put("san francisco", "Golden Gate Bridge");
         CITY_LANDMARKS.put("chicago", "Willis Tower");
     }
 
     public String generateLandmarkAnimation(String city, WeatherInfo weatherInfo) {
-        String landmark = CITY_LANDMARKS.getOrDefault(city.toLowerCase(), "city skyline");
+        // Normalize city name to handle variations
+        String normalizedCity = normalizeCityName(city);
+        String landmark = CITY_LANDMARKS.getOrDefault(normalizedCity, "city skyline");
         String weatherCondition = weatherInfo.getDescription().toLowerCase();
         
         return generateSVGAnimation(city, landmark, weatherCondition, weatherInfo);
+    }
+    
+    private String normalizeCityName(String city) {
+        String normalized = city.toLowerCase()
+                               .replace(" ", "")
+                               .replace("-", "")
+                               .replace("_", "")
+                               .trim();
+        
+        // Handle common variations and abbreviations
+        Map<String, String> cityMappings = new HashMap<>();
+        
+        // English variations
+        cityMappings.put("newyork", "newyork");
+        cityMappings.put("nyc", "newyork");
+        cityMappings.put("sanfrancisco", "sanfrancisco");
+        cityMappings.put("sf", "sanfrancisco");
+        
+        // Chinese cities with common variations
+        cityMappings.put("urumqi", "urumqi");
+        cityMappings.put("wulumuqi", "urumqi");
+        cityMappings.put("xiamen", "xiamen");
+        cityMappings.put("amoy", "xiamen");
+        cityMappings.put("shenzhen", "shenzhen");
+        cityMappings.put("guangzhou", "guangzhou");
+        cityMappings.put("canton", "guangzhou");
+        cityMappings.put("hangzhou", "hangzhou");
+        cityMappings.put("chengdu", "chengdu");
+        
+        // Swedish variations
+        cityMappings.put("göteborg", "gothenburg");
+        cityMappings.put("goteborg", "gothenburg");
+        cityMappings.put("gothenburg", "gothenburg");
+        
+        // Check for exact matches first
+        if (cityMappings.containsKey(normalized)) {
+            return cityMappings.get(normalized);
+        }
+        
+        // Fuzzy matching for partial matches
+        for (Map.Entry<String, String> entry : cityMappings.entrySet()) {
+            if (normalized.contains(entry.getKey()) || entry.getKey().contains(normalized)) {
+                return entry.getValue();
+            }
+        }
+        
+        return normalized;
     }
 
     private String generateSVGAnimation(String city, String landmark, String weather, WeatherInfo weatherInfo) {
@@ -70,7 +128,8 @@ public class LandmarkAnimationService {
     }
 
     private String generateLandmarkSVG(String city, String landmark) {
-        switch (city) {
+        String normalizedCity = normalizeCityName(city);
+        switch (normalizedCity) {
             case "stockholm":
                 return generateStockholmPalace();
             case "göteborg":
@@ -84,6 +143,20 @@ public class LandmarkAnimationService {
                 return generateOrientalPearl();
             case "mohe":
                 return generateMoheTower();
+            case "newyork":
+                return generateStatueOfLiberty();
+            case "urumqi":
+                return generateUrumqiBazaar();
+            case "xiamen":
+                return generateXiamenIsland();
+            case "shenzhen":
+                return generatePingAnTower();
+            case "guangzhou":
+                return generateCantonTower();
+            case "hangzhou":
+                return generateWestLake();
+            case "chengdu":
+                return generatePandaBase();
             default:
                 return generateGenericSkyline();
         }
@@ -162,6 +235,101 @@ public class LandmarkAnimationService {
                 <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
             </circle>
             <text x="200" y="280" text-anchor="middle" fill="#333" font-size="12">Aurora Tower</text>
+            """;
+    }
+
+    private String generateStatueOfLiberty() {
+        return """
+            <!-- Statue of Liberty -->
+            <rect x="190" y="180" width="20" height="60" fill="#228B22"/>
+            <circle cx="200" cy="170" r="12" fill="#F5DEB3"/>
+            <polygon points="190,160 200,140 210,160" fill="#DAA520"/>
+            <line x1="185" y1="190" x2="175" y2="185" stroke="#8B4513" stroke-width="3"/>
+            <circle cx="200" cy="165" r="3" fill="#000"/>
+            <circle cx="200" cy="175" r="2" fill="#000"/>
+            <rect x="195" y="240" width="10" height="20" fill="#696969"/>
+            <text x="200" y="280" text-anchor="middle" fill="#333" font-size="12">Statue of Liberty</text>
+            <animateTransform attributeName="transform" type="sway" values="0 200 200;1 200 200;0 200 200" dur="6s" repeatCount="indefinite"/>
+            """;
+    }
+
+    private String generateUrumqiBazaar() {
+        return """
+            <!-- Urumqi Grand Bazaar -->
+            <rect x="170" y="160" width="60" height="60" fill="#D2691E"/>
+            <polygon points="170,160 200,130 230,160" fill="#8B4513"/>
+            <circle cx="200" cy="140" r="8" fill="#FFD700"/>
+            <rect x="185" y="180" width="10" height="15" fill="#654321"/>
+            <rect x="205" y="180" width="10" height="15" fill="#654321"/>
+            <text x="200" y="280" text-anchor="middle" fill="#333" font-size="12">Grand Bazaar</text>
+            <animateTransform attributeName="transform" type="scale" values="1;1.05;1" dur="4s" repeatCount="indefinite"/>
+            """;
+    }
+
+    private String generateXiamenIsland() {
+        return """
+            <!-- Xiamen Gulangyu Island -->
+            <ellipse cx="200" cy="200" rx="60" ry="30" fill="#4682B4" opacity="0.6"/>
+            <rect x="180" y="170" width="40" height="30" fill="#F5DEB3"/>
+            <polygon points="180,170 200,150 220,170" fill="#8B4513"/>
+            <rect x="195" y="185" width="10" height="15" fill="#654321"/>
+            <circle cx="200" cy="160" r="5" fill="#FFD700"/>
+            <text x="200" y="280" text-anchor="middle" fill="#333" font-size="12">Gulangyu Island</text>
+            <animateTransform attributeName="transform" type="translateY" values="0;-3;0" dur="3s" repeatCount="indefinite"/>
+            """;
+    }
+
+    private String generatePingAnTower() {
+        return """
+            <!-- Shenzhen Ping An Tower -->
+            <rect x="195" y="80" width="10" height="140" fill="#C0C0C0"/>
+            <rect x="190" y="75" width="20" height="10" fill="#696969"/>
+            <rect x="192" y="100" width="16" height="5" fill="#4169E1"/>
+            <rect x="192" y="120" width="16" height="5" fill="#4169E1"/>
+            <rect x="192" y="140" width="16" height="5" fill="#4169E1"/>
+            <text x="200" y="280" text-anchor="middle" fill="#333" font-size="12">Ping An Tower</text>
+            <animateTransform attributeName="transform" type="translateX" values="0;1;0" dur="5s" repeatCount="indefinite"/>
+            """;
+    }
+
+    private String generateCantonTower() {
+        return """
+            <!-- Guangzhou Canton Tower -->
+            <polygon points="200,80 185,220 215,220" fill="#FF6347" stroke="#DC143C" stroke-width="2"/>
+            <ellipse cx="200" cy="120" rx="8" ry="15" fill="#FFD700" opacity="0.7"/>
+            <ellipse cx="200" cy="160" rx="12" ry="20" fill="#FF69B4" opacity="0.7"/>
+            <circle cx="200" cy="85" r="5" fill="#00FFFF"/>
+            <text x="200" y="280" text-anchor="middle" fill="#333" font-size="12">Canton Tower</text>
+            <animateTransform attributeName="transform" type="rotate" values="0 200 150;2 200 150;0 200 150" dur="6s" repeatCount="indefinite"/>
+            """;
+    }
+
+    private String generateWestLake() {
+        return """
+            <!-- Hangzhou West Lake -->
+            <ellipse cx="200" cy="190" rx="80" ry="40" fill="#4682B4" opacity="0.7"/>
+            <polygon points="180,160 200,140 220,160" fill="#228B22"/>
+            <rect x="195" y="150" width="10" height="20" fill="#8B4513"/>
+            <circle cx="200" cy="145" r="3" fill="#FFD700"/>
+            <path d="M 150 190 Q 200 170 250 190" stroke="#90EE90" stroke-width="3" fill="none"/>
+            <text x="200" y="280" text-anchor="middle" fill="#333" font-size="12">West Lake</text>
+            <animateTransform attributeName="transform" type="translateY" values="0;-2;0" dur="4s" repeatCount="indefinite"/>
+            """;
+    }
+
+    private String generatePandaBase() {
+        return """
+            <!-- Chengdu Panda Base -->
+            <ellipse cx="200" cy="200" rx="50" ry="25" fill="#228B22"/>
+            <circle cx="190" cy="180" r="15" fill="#FFFFFF"/>
+            <circle cx="210" cy="180" r="15" fill="#FFFFFF"/>
+            <circle cx="185" cy="175" r="3" fill="#000"/>
+            <circle cx="195" cy="175" r="3" fill="#000"/>
+            <circle cx="205" cy="175" r="3" fill="#000"/>
+            <circle cx="215" cy="175" r="3" fill="#000"/>
+            <ellipse cx="200" cy="185" rx="8" ry="4" fill="#000"/>
+            <text x="200" y="280" text-anchor="middle" fill="#333" font-size="12">Panda Base</text>
+            <animateTransform attributeName="transform" type="scale" values="1;1.1;1" dur="3s" repeatCount="indefinite"/>
             """;
     }
 
