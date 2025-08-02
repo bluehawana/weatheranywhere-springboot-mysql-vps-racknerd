@@ -1,5 +1,6 @@
 package se.campusmolndal.easyweather.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -10,7 +11,8 @@ import java.time.Duration;
 @Service
 public class CityLandmarkService {
 
-    private final String NOUN_PROJECT_API_KEY = "008adfb4f566422e8d88d5d74bdbe3e7";
+    @Value("${noun.project.api.key:}")
+    private String nounProjectApiKey;
     private final HttpClient httpClient;
 
     public CityLandmarkService() {
@@ -68,7 +70,7 @@ public class CityLandmarkService {
             
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    .header("Authorization", "Bearer " + NOUN_PROJECT_API_KEY)
+                    .header("Authorization", "Bearer " + nounProjectApiKey)
                     .GET()
                     .build();
 
