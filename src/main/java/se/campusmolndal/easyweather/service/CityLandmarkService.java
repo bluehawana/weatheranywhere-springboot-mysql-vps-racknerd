@@ -36,17 +36,23 @@ public class CityLandmarkService {
     }
 
     public String getCityIcon(String cityName) {
-        // First try Noun Project API if available
-        if (nounProjectApiKey != null && !nounProjectApiKey.isEmpty()) {
-            String iconTerm = getOptimalCityTerm(cityName);
-            String result = getNounProjectIcon(iconTerm, 64);
-            
-            if (!result.contains("📍")) {
-                return result;
+        // First try OpenAI-generated SVG landmarks
+        try {
+            if (aiWeatherService != null) {
+                // Create a dummy weather info for the SVG generation
+                se.campusmolndal.easyweather.models.WeatherInfo dummyWeather = 
+                    new se.campusmolndal.easyweather.models.WeatherInfo(20.0, 3.0, "clear", 0);
+                
+                String aiSvg = aiWeatherService.generateAILandmarkSVG(cityName, dummyWeather);
+                if (aiSvg != null && aiSvg.contains("<svg")) {
+                    return aiSvg;
+                }
             }
+        } catch (Exception e) {
+            System.err.println("OpenAI SVG generation failed for " + cityName + ": " + e.getMessage());
         }
         
-        // Fallback to city-specific emoji if Noun Project fails
+        // Fallback to city-specific emoji if OpenAI fails
         return getCityEmoji(cityName);
     }
     
@@ -125,23 +131,11 @@ public class CityLandmarkService {
 
     public String getWeatherIcon(String weatherDescription) {
         if (weatherDescription == null || weatherDescription.isEmpty()) {
-            return getWeatherEmoji("clear");
+            return getASCIIWeatherIcon("clear");
         }
         
-        String iconTerm = getOptimalWeatherTerm(weatherDescription);
-        String result = getNounProjectIcon(iconTerm, 64);
-        
-        // If specific weather term fails, try the original description
-        if (result.contains("📍")) {
-            result = getNounProjectIcon(weatherDescription, 64);
-        }
-        
-        // If Noun Project fails completely, use weather-appropriate emoji
-        if (result.contains("📍")) {
-            return getWeatherEmoji(iconTerm);
-        }
-        
-        return result;
+        // Use ASCII weather symbols instead of emojis or Noun Project icons
+        return getASCIIWeatherIcon(weatherDescription);
     }
     
     private String getOptimalWeatherTerm(String weatherDescription) {
@@ -410,6 +404,69 @@ public class CityLandmarkService {
         return lowerTerm.contains("sun") || lowerTerm.contains("rain") || lowerTerm.contains("cloud") || 
                lowerTerm.contains("snow") || lowerTerm.contains("storm") || lowerTerm.contains("wind") ||
                lowerTerm.contains("fog") || lowerTerm.contains("clear") || lowerTerm.contains("weather");
+    }
+    
+    private String getASCIIWeatherIcon(String weatherDescription) {
+        String desc = weatherDescription.toLowerCase();
+        
+        if (desc.contains("clear") || desc.contains("sunny")) {
+            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+                   "    \\   /    \n" +
+                   "     .-.     \n" +
+                   "  ‒ (   ) ‒  \n" +
+                   "     `-'     \n" +
+                   "    /   \\    </pre>";
+        } else if (desc.contains("rain") || desc.contains("shower")) {
+            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+                   "     .-.     \n" +
+                   "    (   ).   \n" +
+                   "   (___(__)  \n" +
+                   "    ' ' ' '  \n" +
+                   "   ' ' ' '   </pre>";
+        } else if (desc.contains("snow")) {
+            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+                   "     .-.     \n" +
+                   "    (   ).   \n" +
+                   "   (___(__)  \n" +
+                   "    * * * *  \n" +
+                   "   * * * *   </pre>";
+        } else if (desc.contains("cloud")) {
+            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+                   "             \n" +
+                   "     .--.    \n" +
+                   "  .-(    ).  \n" +
+                   " (___.__)__) \n" +
+                   "             </pre>";
+        } else if (desc.contains("wind")) {
+            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+                   "             \n" +
+                   "  ~~~   ~~~ \n" +
+                   " ~~~ ~~~ ~~~\n" +
+                   "~~~ ~~~ ~~~ \n" +
+                   "             </pre>";
+        } else if (desc.contains("thunderstorm") || desc.contains("storm")) {
+            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+                   "     .-.     \n" +
+                   "    (   ).   \n" +
+                   "   (___(__)  \n" +
+                   "    ⚡ ' ⚡   \n" +
+                   "   ' ⚡ ' '   </pre>";
+        } else if (desc.contains("fog") || desc.contains("mist")) {
+            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+                   "             \n" +
+                   " _ - _ - _ - \n" +
+                   "  _ - _ - _  \n" +
+                   " _ - _ - _ - \n" +
+                   "             </pre>";
+        } else {
+            // Default partly cloudy
+            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+                   "   \\  /      \n" +
+                   " _ /\"\".-.    \n" +
+                   "   \\_(   ).  \n" +
+                   "   /(___(__)  \n" +
+                   "             </pre>";
+        }
     }
     
     private String getWeatherEmoji(String weatherTerm) {
