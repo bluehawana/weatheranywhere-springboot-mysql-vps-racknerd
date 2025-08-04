@@ -64,6 +64,7 @@ public class CityLandmarkService {
             case "tokyo" -> "tokyo tower";
             case "new york", "newyork" -> "statue of liberty";
             case "los angeles" -> "hollywood sign";
+            case "san francisco", "sanfrancisco", "sf" -> "golden gate bridge";
             case "sydney" -> "opera house";
             case "beijing" -> "forbidden city";
             case "shanghai" -> "oriental pearl tower";
@@ -388,6 +389,7 @@ public class CityLandmarkService {
         if (term.contains("eiffel")) return "paris";
         if (term.contains("statue of liberty")) return "new york";
         if (term.contains("hollywood")) return "los angeles";
+        if (term.contains("golden gate")) return "san francisco";
         if (term.contains("opera house")) return "sydney";
         if (term.contains("colosseum")) return "rome";
         if (term.contains("parthenon")) return "athens";
@@ -442,6 +444,7 @@ public class CityLandmarkService {
             case "tokyo" -> "🗼"; // Tokyo Tower
             case "new york", "newyork" -> "🗽"; // Statue of Liberty
             case "los angeles" -> "🎬"; // Hollywood
+            case "san francisco", "sanfrancisco", "sf" -> "🌉"; // Golden Gate Bridge
             case "sydney" -> "🏛️"; // Opera House
             case "beijing" -> "🏯"; // Forbidden City
             case "shanghai" -> "🏙️"; // Skyline
