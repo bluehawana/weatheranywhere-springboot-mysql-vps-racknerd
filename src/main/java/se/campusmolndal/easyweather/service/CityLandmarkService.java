@@ -469,7 +469,7 @@ public class CityLandmarkService {
         }
     }
     
-    private String getWeatherEmoji(String weatherTerm) {
+    public String getWeatherEmoji(String weatherTerm) {
         return switch (weatherTerm.toLowerCase()) {
             case "thunderstorm", "lightning" -> "⛈️";
             case "heavy rain", "downpour" -> "🌧️";
@@ -494,7 +494,7 @@ public class CityLandmarkService {
         };
     }
     
-    private String getCityEmoji(String cityName) {
+    public String getCityEmoji(String cityName) {
         return switch (cityName.toLowerCase()) {
             case "london" -> "🏰"; // Big Ben/Tower
             case "paris" -> "🗼"; // Eiffel Tower
