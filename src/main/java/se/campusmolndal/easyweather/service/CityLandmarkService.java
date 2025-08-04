@@ -36,23 +36,42 @@ public class CityLandmarkService {
     }
 
     public String getCityIcon(String cityName) {
-        // First try OpenAI-generated SVG landmarks
+         // First try OpenAI-generated SVG landmarks with retries for important cities
         try {
             if (aiWeatherService != null) {
                 // Create a dummy weather info for the SVG generation
                 se.campusmolndal.easyweather.models.WeatherInfo dummyWeather = 
                     new se.campusmolndal.easyweather.models.WeatherInfo(20.0, 3.0, "clear", 0);
                 
-                String aiSvg = aiWeatherService.generateAILandmarkSVG(cityName, dummyWeather);
-                if (aiSvg != null && aiSvg.contains("<svg")) {
-                    return aiSvg;
+                // Try up to 2 times for major cities to get proper landmarks
+                int maxAttempts = isMajorCity(cityName) ? 2 : 1;
+                
+                for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+                    System.out.println("Attempting OpenAI landmark generation for " + cityName + " (attempt " + attempt + "/" + maxAttempts + ")");
+                    
+                    String aiSvg = aiWeatherService.generateAILandmarkSVG(cityName, dummyWeather);
+                    if (aiSvg != null && aiSvg.contains("<svg")) {
+                        System.out.println("Successfully generated OpenAI SVG for " + cityName);
+                        return aiSvg;
+                    }
+                    
+                    // Small delay between attempts for major cities
+                    if (attempt < maxAttempts) {
+                        Thread.sleep(1000);
+                    }
                 }
             }
         } catch (Exception e) {
             System.err.println("OpenAI SVG generation failed for " + cityName + ": " + e.getMessage());
         }
         
-        // Fallback to city-specific emoji if OpenAI fails
+        // If OpenAI fails, try city-specific landmark SVGs before falling back to emojis
+        String specificLandmark = getCitySpecificLandmarkSVG(cityName);
+        if (specificLandmark != null) {
+            return specificLandmark;
+        }
+        
+        // Final fallback to city-specific emoji
         return getCityEmoji(cityName);
     }
     
@@ -492,6 +511,178 @@ public class CityLandmarkService {
             case "hail" -> "🧊";
             default -> "🌤️";
         };
+    }
+    
+    private boolean isMajorCity(String cityName) {
+        String city = cityName.toLowerCase();
+        return city.equals("beijing") || city.equals("london") || city.equals("paris") || 
+               city.equals("tokyo") || city.equals("new york") || city.equals("newyork") ||
+               city.equals("rome") || city.equals("moscow") || city.equals("berlin") ||
+               city.equals("madrid") || city.equals("cairo") || city.equals("mumbai") ||
+               city.equals("shanghai") || city.equals("sydney") || city.equals("los angeles");
+    }
+    
+    private String getCitySpecificLandmarkSVG(String cityName) {
+        return switch (cityName.toLowerCase()) {
+            case "beijing" -> generateBeijingForbiddenCity();
+            case "rome" -> generateRomeColosseum(); 
+            case "athens" -> generateAthensParthenon();
+            case "cairo" -> generateCairoPyramid();
+            case "moscow" -> generateMoscowRedSquare();
+            case "mumbai" -> generateMumbaiGateway();
+            default -> null;
+        };
+    }
+    
+    private String generateBeijingForbiddenCity() {
+        return """
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <!-- Main Palace Structure -->
+                <rect x="15" y="60" width="70" height="25" fill="none" stroke="#000000" stroke-width="2"/>
+                
+                <!-- Traditional Chinese Roof -->
+                <polygon points="10,60 50,45 90,60" fill="none" stroke="#000000" stroke-width="2"/>
+                <polygon points="15,50 50,38 85,50" fill="none" stroke="#000000" stroke-width="1.5"/>
+                
+                <!-- Palace Gates and Columns -->
+                <rect x="45" y="70" width="10" height="15" fill="none" stroke="#000000" stroke-width="2"/>
+                <line x1="25" y1="60" x2="25" y2="85" stroke="#000000" stroke-width="2"/>
+                <line x1="35" y1="60" x2="35" y2="85" stroke="#000000" stroke-width="2"/>
+                <line x1="65" y1="60" x2="65" y2="85" stroke="#000000" stroke-width="2"/>
+                <line x1="75" y1="60" x2="75" y2="85" stroke="#000000" stroke-width="2"/>
+                
+                <!-- Decorative Elements -->
+                <line x1="10" y1="60" x2="90" y2="60" stroke="#000000" stroke-width="1"/>
+                <circle cx="50" cy="52" r="2" fill="none" stroke="#000000" stroke-width="1"/>
+                
+                <text x="50" y="95" text-anchor="middle" font-size="6" fill="#000000">Forbidden City</text>
+            </svg>
+            """;
+    }
+    
+    private String generateRomeColosseum() {
+        return """
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <!-- Main Colosseum Structure -->
+                <ellipse cx="50" cy="65" rx="35" ry="20" fill="none" stroke="#000000" stroke-width="2"/>
+                <ellipse cx="50" cy="60" rx="35" ry="20" fill="none" stroke="#000000" stroke-width="2"/>
+                
+                <!-- Arches -->
+                <rect x="20" y="55" width="6" height="15" fill="none" stroke="#000000" stroke-width="1"/>
+                <rect x="30" y="55" width="6" height="15" fill="none" stroke="#000000" stroke-width="1"/>
+                <rect x="40" y="55" width="6" height="15" fill="none" stroke="#000000" stroke-width="1"/>
+                <rect x="54" y="55" width="6" height="15" fill="none" stroke="#000000" stroke-width="1"/>
+                <rect x="64" y="55" width="6" height="15" fill="none" stroke="#000000" stroke-width="1"/>
+                <rect x="74" y="55" width="6" height="15" fill="none" stroke="#000000" stroke-width="1"/>
+                
+                <!-- Upper Level Arches -->
+                <rect x="25" y="45" width="4" height="10" fill="none" stroke="#000000" stroke-width="1"/>
+                <rect x="35" y="45" width="4" height="10" fill="none" stroke="#000000" stroke-width="1"/>
+                <rect x="45" y="45" width="4" height="10" fill="none" stroke="#000000" stroke-width="1"/>
+                <rect x="56" y="45" width="4" height="10" fill="none" stroke="#000000" stroke-width="1"/>
+                <rect x="66" y="45" width="4" height="10" fill="none" stroke="#000000" stroke-width="1"/>
+                
+                <text x="50" y="95" text-anchor="middle" font-size="6" fill="#000000">Colosseum</text>
+            </svg>
+            """;
+    }
+    
+    private String generateAthensParthenon() {
+        return """
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <!-- Temple Base -->
+                <rect x="10" y="70" width="80" height="15" fill="none" stroke="#000000" stroke-width="2"/>
+                
+                <!-- Columns -->
+                <line x1="15" y1="45" x2="15" y2="70" stroke="#000000" stroke-width="2"/>
+                <line x1="25" y1="45" x2="25" y2="70" stroke="#000000" stroke-width="2"/>
+                <line x1="35" y1="45" x2="35" y2="70" stroke="#000000" stroke-width="2"/>
+                <line x1="45" y1="45" x2="45" y2="70" stroke="#000000" stroke-width="2"/>
+                <line x1="55" y1="45" x2="55" y2="70" stroke="#000000" stroke-width="2"/>
+                <line x1="65" y1="45" x2="65" y2="70" stroke="#000000" stroke-width="2"/>
+                <line x1="75" y1="45" x2="75" y2="70" stroke="#000000" stroke-width="2"/>
+                <line x1="85" y1="45" x2="85" y2="70" stroke="#000000" stroke-width="2"/>
+                
+                <!-- Pediment -->
+                <polygon points="5,45 50,25 95,45" fill="none" stroke="#000000" stroke-width="2"/>
+                <rect x="5" y="45" width="90" height="5" fill="none" stroke="#000000" stroke-width="1"/>
+                
+                <text x="50" y="95" text-anchor="middle" font-size="6" fill="#000000">Parthenon</text>
+            </svg>
+            """;
+    }
+    
+    private String generateCairoPyramid() {
+        return """
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <!-- Main Pyramid -->
+                <polygon points="50,25 20,80 80,80" fill="none" stroke="#000000" stroke-width="2"/>
+                
+                <!-- Pyramid Details -->
+                <line x1="50" y1="25" x2="65" y2="65" stroke="#000000" stroke-width="1"/>
+                <line x1="50" y1="25" x2="35" y2="65" stroke="#000000" stroke-width="1"/>
+                <line x1="25" y1="72" x2="75" y2="72" stroke="#000000" stroke-width="1"/>
+                <line x1="30" y1="76" x2="70" y2="76" stroke="#000000" stroke-width="1"/>
+                
+                <!-- Small pyramid nearby -->
+                <polygon points="75,55 68,75 82,75" fill="none" stroke="#000000" stroke-width="1"/>
+                
+                <!-- Ground line -->
+                <line x1="15" y1="80" x2="85" y2="80" stroke="#000000" stroke-width="1"/>
+                
+                <text x="50" y="95" text-anchor="middle" font-size="6" fill="#000000">Great Pyramid</text>
+            </svg>
+            """;
+    }
+    
+    private String generateMoscowRedSquare() {
+        return """
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <!-- St. Basil's Cathedral domes -->
+                <circle cx="50" cy="35" r="8" fill="none" stroke="#000000" stroke-width="2"/>
+                <circle cx="35" cy="45" r="6" fill="none" stroke="#000000" stroke-width="1.5"/>
+                <circle cx="65" cy="45" r="6" fill="none" stroke="#000000" stroke-width="1.5"/>
+                <circle cx="40" cy="55" r="5" fill="none" stroke="#000000" stroke-width="1"/>
+                <circle cx="60" cy="55" r="5" fill="none" stroke="#000000" stroke-width="1"/>
+                
+                <!-- Spires -->
+                <polygon points="50,20 47,35 53,35" fill="none" stroke="#000000" stroke-width="1"/>
+                <polygon points="35,35 33,45 37,45" fill="none" stroke="#000000" stroke-width="1"/>
+                <polygon points="65,35 63,45 67,45" fill="none" stroke="#000000" stroke-width="1"/>
+                
+                <!-- Building base -->
+                <rect x="30" y="60" width="40" height="20" fill="none" stroke="#000000" stroke-width="2"/>
+                
+                <text x="50" y="95" text-anchor="middle" font-size="6" fill="#000000">Red Square</text>
+            </svg>
+            """;
+    }
+    
+    private String generateMumbaiGateway() {
+        return """
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <!-- Main Gateway Structure -->
+                <rect x="20" y="45" width="60" height="35" fill="none" stroke="#000000" stroke-width="2"/>
+                
+                <!-- Central Arch -->
+                <path d="M 35,80 Q 50,60 65,80" fill="none" stroke="#000000" stroke-width="2"/>
+                
+                <!-- Side Towers -->
+                <rect x="15" y="40" width="10" height="40" fill="none" stroke="#000000" stroke-width="2"/>
+                <rect x="75" y="40" width="10" height="40" fill="none" stroke="#000000" stroke-width="2"/>
+                
+                <!-- Domes -->
+                <circle cx="20" cy="35" r="8" fill="none" stroke="#000000" stroke-width="1.5"/>
+                <circle cx="80" cy="35" r="8" fill="none" stroke="#000000" stroke-width="1.5"/>
+                <circle cx="50" cy="35" r="10" fill="none" stroke="#000000" stroke-width="2"/>
+                
+                <!-- Decorative elements -->
+                <line x1="35" y1="65" x2="65" y2="65" stroke="#000000" stroke-width="1"/>
+                <line x1="40" y1="70" x2="60" y2="70" stroke="#000000" stroke-width="1"/>
+                
+                <text x="50" y="95" text-anchor="middle" font-size="6" fill="#000000">Gateway of India</text>
+            </svg>
+            """;
     }
     
     public String getCityEmoji(String cityName) {
