@@ -37,20 +37,108 @@ public class AIWeatherService {
         );
     }
 
-    public String generateLandmarkSVGPrompt(String city, WeatherInfo weatherInfo) {
-        return String.format(
-            "Generate SVG code for a simple, minimalist landmark icon of %s in black line-art style. " +
+    public String generateLandmarkSVGPrompt(String city, WeatherInfo weatherInfo, GeocodingService.LocationInfo locationInfo) {
+        StringBuilder prompt = new StringBuilder();
+        prompt.append("Generate SVG code for a simple, minimalist landmark icon in black line-art style. ");
+        
+        if (locationInfo != null) {
+            prompt.append(String.format(
+                "Location details: %s (lat: %.4f, lng: %.4f) in %s. ",
+                locationInfo.getFormattedAddress(),
+                locationInfo.getLatitude(),
+                locationInfo.getLongitude(),
+                locationInfo.getCountry()
+            ));
+            
+            // Add specific landmark guidance based on location
+            String landmarkHint = getLandmarkHintForLocation(locationInfo);
+            if (landmarkHint != null) {
+                prompt.append("Focus on this landmark: ").append(landmarkHint).append(". ");
+            }
+        } else {
+            prompt.append(String.format("City: %s. ", city));
+        }
+        
+        prompt.append(
             "Requirements: " +
-            "1. Create a simple SVG (100x100 viewBox) showing the most recognizable landmark of %s " +
+            "1. Create a simple SVG (100x100 viewBox) showing the most recognizable landmark " +
             "2. Use only black lines/strokes (#000000) on transparent background, like a simple icon " +
             "3. Very minimalist style - similar to icons8 or simple line drawings " +
             "4. No fills, only stroke outlines, stroke-width around 2-3px " +
             "5. No text, no weather effects, just the pure landmark shape " +
-            "6. Make it instantly recognizable (Eiffel Tower for Paris, Big Ben for London, etc.) " +
+            "6. Make it instantly recognizable and location-specific " +
             "7. Return ONLY the SVG code, no explanations " +
-            "Example format: <svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><path d='...' fill='none' stroke='#000000' stroke-width='2'/></svg>",
-            city, city
+            "Example format: <svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><path d='...' fill='none' stroke='#000000' stroke-width='2'/></svg>"
         );
+        
+        return prompt.toString();
+    }
+    
+    private String getLandmarkHintForLocation(GeocodingService.LocationInfo locationInfo) {
+        String city = locationInfo.getCity().toLowerCase();
+        String country = locationInfo.getCountry().toLowerCase();
+        
+        // Country-specific landmarks
+        if (country.contains("china")) {
+            if (city.contains("beijing")) return "Forbidden City or Tiananmen Square";
+            if (city.contains("shanghai")) return "Oriental Pearl Tower";
+            if (city.contains("hong kong")) return "Hong Kong skyline";
+            if (city.contains("guangzhou")) return "Canton Tower";
+            if (city.contains("shenzhen")) return "Ping An Finance Centre";
+            return "Traditional Chinese architecture or Great Wall";
+        }
+        
+        if (country.contains("france")) {
+            if (city.contains("paris")) return "Eiffel Tower";
+            return "French landmark or monument";
+        }
+        
+        if (country.contains("united kingdom") || country.contains("england")) {
+            if (city.contains("london")) return "Big Ben or Tower Bridge";
+            return "British landmark";
+        }
+        
+        if (country.contains("japan")) {
+            if (city.contains("tokyo")) return "Tokyo Tower or Tokyo Skytree";
+            if (city.contains("osaka")) return "Osaka Castle";
+            return "Japanese pagoda or temple";
+        }
+        
+        if (country.contains("united states")) {
+            if (city.contains("new york")) return "Statue of Liberty or Empire State Building";
+            if (city.contains("san francisco")) return "Golden Gate Bridge";
+            if (city.contains("los angeles")) return "Hollywood Sign";
+            return "American landmark";
+        }
+        
+        if (country.contains("australia")) {
+            if (city.contains("sydney")) return "Sydney Opera House";
+            return "Australian landmark";
+        }
+        
+        if (country.contains("italy")) {
+            if (city.contains("rome")) return "Colosseum";
+            if (city.contains("pisa")) return "Leaning Tower of Pisa";
+            return "Italian historical monument";
+        }
+        
+        if (country.contains("egypt")) {
+            if (city.contains("cairo")) return "Great Pyramid of Giza";
+            return "Egyptian pyramid or sphinx";
+        }
+        
+        if (country.contains("russia")) {
+            if (city.contains("moscow")) return "Red Square or St. Basil's Cathedral";
+            return "Russian landmark";
+        }
+        
+        if (country.contains("india")) {
+            if (city.contains("mumbai")) return "Gateway of India";
+            if (city.contains("delhi")) return "India Gate";
+            return "Indian monument or temple";
+        }
+        
+        return null;
     }
 
     public String generateLandmarkPNGPrompt(String city) {
@@ -82,12 +170,16 @@ public class AIWeatherService {
     }
 
     public String generateAILandmarkSVG(String city, WeatherInfo weatherInfo) {
+        return generateAILandmarkSVG(city, weatherInfo, null);
+    }
+    
+    public String generateAILandmarkSVG(String city, WeatherInfo weatherInfo, GeocodingService.LocationInfo locationInfo) {
         if (openaiApiKey == null || openaiApiKey.isEmpty()) {
             return generateFallbackLandmarkSVG(city, weatherInfo);
         }
 
         try {
-            String prompt = generateLandmarkSVGPrompt(city, weatherInfo);
+            String prompt = generateLandmarkSVGPrompt(city, weatherInfo, locationInfo);
             String aiResponse = callOpenAI(prompt);
             
             // Extract SVG from AI response (it might include extra text)

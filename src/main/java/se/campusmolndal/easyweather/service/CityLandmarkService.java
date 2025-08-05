@@ -27,6 +27,9 @@ public class CityLandmarkService {
     @Autowired
     private AIWeatherService aiWeatherService;
     
+    @Autowired
+    private GeocodingService geocodingService;
+    
     private final HttpClient httpClient;
 
     public CityLandmarkService() {
@@ -36,7 +39,21 @@ public class CityLandmarkService {
     }
 
     public String getCityIcon(String cityName) {
-         // First try OpenAI-generated SVG landmarks with retries for important cities
+        // First get location information using OpenCage geocoding
+        GeocodingService.LocationInfo locationInfo = null;
+        try {
+            if (geocodingService != null) {
+                System.out.println("Getting location info for " + cityName + " via OpenCage API");
+                locationInfo = geocodingService.getLocationInfo(cityName);
+                if (locationInfo != null) {
+                    System.out.println("Location info: " + locationInfo.toString());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Geocoding failed for " + cityName + ": " + e.getMessage());
+        }
+        
+        // Try OpenAI-generated SVG landmarks with retries for important cities
         try {
             if (aiWeatherService != null) {
                 // Create a dummy weather info for the SVG generation
@@ -49,9 +66,10 @@ public class CityLandmarkService {
                 for (int attempt = 1; attempt <= maxAttempts; attempt++) {
                     System.out.println("Attempting OpenAI landmark generation for " + cityName + " (attempt " + attempt + "/" + maxAttempts + ")");
                     
-                    String aiSvg = aiWeatherService.generateAILandmarkSVG(cityName, dummyWeather);
+                    // Use the enhanced method with location info
+                    String aiSvg = aiWeatherService.generateAILandmarkSVG(cityName, dummyWeather, locationInfo);
                     if (aiSvg != null && aiSvg.contains("<svg")) {
-                        System.out.println("Successfully generated OpenAI SVG for " + cityName);
+                        System.out.println("Successfully generated location-aware OpenAI SVG for " + cityName);
                         return aiSvg;
                     }
                     
@@ -68,10 +86,12 @@ public class CityLandmarkService {
         // If OpenAI fails, try city-specific landmark SVGs before falling back to emojis
         String specificLandmark = getCitySpecificLandmarkSVG(cityName);
         if (specificLandmark != null) {
+            System.out.println("Using hand-crafted landmark SVG for " + cityName);
             return specificLandmark;
         }
         
         // Final fallback to city-specific emoji
+        System.out.println("Using fallback emoji for " + cityName);
         return getCityEmoji(cityName);
     }
     
@@ -519,7 +539,8 @@ public class CityLandmarkService {
                city.equals("tokyo") || city.equals("new york") || city.equals("newyork") ||
                city.equals("rome") || city.equals("moscow") || city.equals("berlin") ||
                city.equals("madrid") || city.equals("cairo") || city.equals("mumbai") ||
-               city.equals("shanghai") || city.equals("sydney") || city.equals("los angeles");
+               city.equals("shanghai") || city.equals("sydney") || city.equals("los angeles") ||
+               city.equals("hong kong") || city.equals("dubai") || city.equals("istanbul");
     }
     
     private String getCitySpecificLandmarkSVG(String cityName) {
