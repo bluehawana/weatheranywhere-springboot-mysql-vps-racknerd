@@ -1,108 +1,148 @@
-# Weather Searching App on ApsaraDB RDS and Alibaba Cloud ECS
+# WeatherAnywhere - Spring Boot Weather Application
 
-This application is a development from a Swedish weather searching app, designed to provide weather information for various cities, with a focus on Swedish cities. The application is built using Spring Boot and runs on an Alibaba Cloud Elastic Compute Service (ECS) instance, with the data stored in an ApsaraDB RDS (Relational Database Service) MySQL database.
+A full-stack weather application built with Spring Boot, MySQL, and deployed on RackNerd VPS.
 
-## City Manager
+## Features
 
-The CityManager class is responsible for managing the cities. It stores Swedish cities along with their respective latitude and longitude coordinates. This data is used to fetch weather information from the weather API.
+- 🌍 **Global Weather Data**: Get weather information for any city worldwide
+- 🎨 **Auto Theme Switching**: White theme (8 AM - 6 PM), Black theme (6 PM - 8 AM) based on local time
+- 🏛️ **AI-Generated Landmarks**: Beautiful SVG landmark icons for cities using OpenAI
+- 🌦️ **ASCII Weather Art**: Retro ASCII art weather icons
+- 📍 **Geocoding Integration**: Location-aware features using OpenCage API
+- ⚡ **REST API**: Clean REST endpoints for weather data
 
-## OpenCageData API
+## Tech Stack
 
-To enhance the functionality of the application, the OpenCageData API is used. This API allows the conversion of city names into geographical coordinates (latitude and longitude). When a new city is inputted, the OpenCageData API is used to obtain the city's coordinates. These coordinates are then stored in the ApsaraDB RDS MySQL database, specifically in the weather table. The table stores the city name, latitude, and longitude.
+- **Backend**: Spring Boot 3.2.4, Java 17
+- **Database**: MySQL 8.0
+- **Frontend**: HTML, CSS, JavaScript (jQuery)
+- **APIs**: OpenWeatherMap, OpenAI, OpenCage Geocoding
+- **Deployment**: RackNerd VPS, Nginx, systemd
 
-### API Key Setup
+## Quick Start
 
-1. Sign up for a free account at [OpenCage Geocoding API](https://opencagedata.com/)
-2. Get your API key from the dashboard
-3. Update `src/main/resources/application.properties`:
-   ```properties
-   opencage.api.key=YOUR_ACTUAL_API_KEY_HERE
-   ```
-4. For Heroku deployment, set the environment variable:
-   ```bash
-   heroku config:set OPENCAGE_API_KEY=your_actual_api_key_here
-   ```
+### Prerequisites
 
-## Open-Meteo.com
+- Java 17+
+- Maven 3.6+
+- MySQL 8.0+
 
-The application uses the Open-Meteo.com API to fetch weather information using the latitude and longitude of a city. When a city name is inputted, the application first checks if the city's coordinates are already stored in the ApsaraDB RDS database. If they are, the application fetches the weather information directly from Open-Meteo.com using these coordinates. If the city's coordinates are not in the database, the application uses the OpenCageData API to obtain the coordinates, stores them in the ApsaraDB RDS database, and then fetches the weather information from Open-Meteo.com.
-
-## Usage
-
-To use the application, simply input the name of the city you want to check the weather for. The application will handle the rest, providing you with the current weather information for that city.
-
-## Troubleshooting
-
-### Common Issues
-
-**404 Error**: Make sure your frontend is calling the correct endpoint (`/api/weather` or `/weather`)
-
-**500 Internal Server Error**: 
-- Check that your OpenCage API key is properly configured
-- Verify the API key is valid and has remaining quota
-- Check application logs for detailed error messages
-
-**City Not Found**: 
-- Verify the city name spelling
-- Try using the full city name or include country (e.g., "Stockholm, Sweden")
-
-### Local Development Setup
+### Setup
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/bluehawana/SpringBoot-WeatherApp-HerokuCloud.git
-   cd SpringBoot-WeatherApp-HerokuCloud
+   git clone https://github.com/bluehawana/weatheranywhere-springboot-mysql-vps-racknerd.git
+   cd weatheranywhere-springboot-mysql-vps-racknerd
    ```
 
-2. **Set up configuration**
+2. **Configure environment variables**
    ```bash
-   # Copy the template file
-   cp src/main/resources/application.properties.template src/main/resources/application.properties
-   
-   # Edit application.properties and add your API keys:
-   # - Get OpenCage API key from https://opencagedata.com/
-   # - Get OpenAI API key from https://platform.openai.com/
+   cp .env.example .env
+   # Edit .env with your actual credentials
    ```
 
-3. **Run the application**
+3. **Create database**
    ```bash
-   ./mvnw spring-boot:run
+   mysql -u root -p
+   CREATE DATABASE weatheranywhere;
    ```
 
-4. **Access the application**
-   - Main app: `http://localhost:8080`
-   - Immersive experience: `http://localhost:8080/immersive.html`
-   - Demo page: `http://localhost:8080/demo.html`
+4. **Build and run**
+   ```bash
+   mvn clean package
+   java -jar target/EasyWeather-0.0.1-SNAPSHOT.jar
+   ```
 
-### Environment Variables for Production
+5. **Access the application**
+   ```
+   http://localhost:8080
+   ```
 
-Set these environment variables in your production environment (Heroku):
+## Environment Variables
 
-```bash
-# Required
-OPENCAGE_API_KEY=your_opencage_api_key_here
-JAWSDB_URL=mysql://username:password@host:port/database
+See `.env.example` for required configuration:
 
-# Optional
-OPENAI_API_KEY=your_openai_api_key_here
-DATABASE_DRIVER=com.mysql.cj.jdbc.Driver
-```
+- `OPENCAGE_API_KEY`: Get from [OpenCage](https://opencagedata.com/)
+- `OPENAI_API_KEY`: Get from [OpenAI](https://platform.openai.com/)
+- Database credentials
+- VPS configuration (for deployment)
 
 ## Deployment
 
-This application is deployed on an Alibaba Cloud Elastic Compute Service (ECS) instance, with the data stored in an ApsaraDB RDS MySQL database. This deployment architecture ensures high availability, scalability, and reliable data storage for the application.
+### RackNerd VPS
 
-## Development
+1. Build the JAR:
+   ```bash
+   mvn clean package
+   ```
 
-This application was developed with Java and Spring Boot, using Maven for dependency management. It interacts with the OpenCageData and Open-Meteo.com APIs for data retrieval. The core logic is to achieve the goal of checking weather in any city in the world by inputting its name. Later, there will be Android and iOS versions as well, and they will keep the same black-white console style.
+2. Deploy to VPS:
+   ```bash
+   scp target/EasyWeather-0.0.1-SNAPSHOT.jar user@your-vps:/opt/weatheranywhere/
+   ```
 
-## Future Improvements
+3. Restart service:
+   ```bash
+   ssh user@your-vps "sudo systemctl restart weatheranywhere"
+   ```
 
-Future improvements to this application could include expanding the list of cities, improving the user interface, adding more detailed weather information, and implementing caching mechanisms to improve performance.
+See `scripts/` directory for deployment scripts and systemd service configuration.
+
+## API Endpoints
+
+- `GET /` - Web interface
+- `GET /weather?city={cityName}` - Get weather for a city
+- `GET /api/weather?city={cityName}` - JSON weather data
+
+## Project Structure
+
+```
+weatheranywhere/
+├── src/main/
+│   ├── java/se/campusmolndal/easyweather/
+│   │   ├── controllers/    # REST controllers
+│   │   ├── models/        # Data models
+│   │   └── service/       # Business logic
+│   └── resources/
+│       ├── static/        # HTML, CSS, JS
+│       └── application.properties.template
+├── scripts/               # Deployment scripts
+├── .env.example          # Environment template
+└── pom.xml
+```
+
+## Features in Detail
+
+### Automatic Theme Switching
+The UI automatically switches between light and dark themes based on time:
+- **White theme**: 08:00 - 18:00 (daytime)
+- **Black theme**: 18:00 - 08:00 (nighttime)
+
+Uses the user's local time zone for automatic detection.
+
+### AI-Generated Landmarks
+- Generates custom SVG landmarks for cities using OpenAI
+- Falls back to hand-crafted SVGs for major cities
+- Emoji fallback for ultimate compatibility
+
+### Clean Logging
+- Minimal console output
+- Silent API fallbacks
+- No verbose error messages cluttering the UI
 
 ## License
 
-The license for this project can be found in the [LICENSE.md](LICENSE) file.
+MIT License - feel free to use this project for learning and development.
+
+## Contributing
+
+Contributions welcome! Please open an issue or submit a PR.
 
 ## Author
-Hongzhi Li
+
+**bluehawana**
+- GitHub: [@bluehawana](https://github.com/bluehawana)
+
+---
+
+Built with ☕ and Spring Boot

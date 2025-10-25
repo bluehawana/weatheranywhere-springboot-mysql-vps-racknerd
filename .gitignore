@@ -49,3 +49,14 @@ src/main/resources/application-*.properties
 # Database and API keys
 database.properties
 api-keys.properties
+
+# Documentation with sensitive credentials
+BACKUP_AND_DEPLOYMENT_GUIDE.md
+ENVIRONMENT_BACKUP.md
+MIGRATION_GUIDE.md
+scripts/*backup*.sql
+
+# Archive files
+*.tar.gz
+*.tar
+*.zip

@@ -39,38 +39,20 @@ public class AIWeatherService {
 
     public String generateLandmarkSVGPrompt(String city, WeatherInfo weatherInfo, GeocodingService.LocationInfo locationInfo) {
         StringBuilder prompt = new StringBuilder();
-        prompt.append("Generate SVG code for a simple, minimalist landmark icon in black line-art style. ");
-        
+        prompt.append("Generate minimalist SVG landmark icon for ");
+
         if (locationInfo != null) {
-            prompt.append(String.format(
-                "Location details: %s (lat: %.4f, lng: %.4f) in %s. ",
-                locationInfo.getFormattedAddress(),
-                locationInfo.getLatitude(),
-                locationInfo.getLongitude(),
-                locationInfo.getCountry()
-            ));
-            
-            // Add specific landmark guidance based on location
+            prompt.append(String.format("%s (%s). ", locationInfo.getCity(), locationInfo.getCountry()));
             String landmarkHint = getLandmarkHintForLocation(locationInfo);
             if (landmarkHint != null) {
-                prompt.append("Focus on this landmark: ").append(landmarkHint).append(". ");
+                prompt.append("Landmark: ").append(landmarkHint).append(". ");
             }
         } else {
-            prompt.append(String.format("City: %s. ", city));
+            prompt.append(city).append(". ");
         }
-        
-        prompt.append(
-            "Requirements: " +
-            "1. Create a simple SVG (100x100 viewBox) showing the most recognizable landmark " +
-            "2. Use only black lines/strokes (#000000) on transparent background, like a simple icon " +
-            "3. Very minimalist style - similar to icons8 or simple line drawings " +
-            "4. No fills, only stroke outlines, stroke-width around 2-3px " +
-            "5. No text, no weather effects, just the pure landmark shape " +
-            "6. Make it instantly recognizable and location-specific " +
-            "7. Return ONLY the SVG code, no explanations " +
-            "Example format: <svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><path d='...' fill='none' stroke='#000000' stroke-width='2'/></svg>"
-        );
-        
+
+        prompt.append("SVG: 100x100 viewBox, black strokes only (#000000), no fills, stroke-width 2px. Return ONLY SVG code.");
+
         return prompt.toString();
     }
     
@@ -143,14 +125,7 @@ public class AIWeatherService {
 
     public String generateLandmarkPNGPrompt(String city) {
         return String.format(
-            "Create a simple, minimalist black line-art icon of the most famous landmark of %s. " +
-            "Style requirements: " +
-            "- Very simple black lines on white/transparent background " +
-            "- Similar to icons8 or simple vector icons " +
-            "- 100x100 pixels, PNG format " +
-            "- No fills, only black outlines " +
-            "- Instantly recognizable landmark (Eiffel Tower for Paris, Big Ben for London, etc.) " +
-            "- Clean, minimal design suitable for use as weather app icon",
+            "Create minimalist black line-art icon of %s's famous landmark. 100x100px PNG, black outlines only, no fills.",
             city
         );
     }
@@ -164,7 +139,6 @@ public class AIWeatherService {
             String prompt = generateWeatherPrompt(city, weatherInfo);
             return callOpenAI(prompt);
         } catch (Exception e) {
-            System.err.println("AI service failed, using fallback: " + e.getMessage());
             return generateFallbackDescription(city, weatherInfo);
         }
     }
@@ -181,13 +155,12 @@ public class AIWeatherService {
         try {
             String prompt = generateLandmarkSVGPrompt(city, weatherInfo, locationInfo);
             String aiResponse = callOpenAI(prompt);
-            
+
             // Extract SVG from AI response (it might include extra text)
             String svgCode = extractSVGFromResponse(aiResponse);
             return svgCode != null ? svgCode : generateFallbackLandmarkSVG(city, weatherInfo);
-            
+
         } catch (Exception e) {
-            System.err.println("AI landmark generation failed, using fallback: " + e.getMessage());
             return generateFallbackLandmarkSVG(city, weatherInfo);
         }
     }
@@ -312,7 +285,7 @@ public class AIWeatherService {
         if (openaiApiKey == null || openaiApiKey.isEmpty()) {
             throw new RuntimeException("OpenAI API key not configured");
         }
-        
+
         String requestBody = String.format("""
             {
                 "model": "gpt-3.5-turbo",
@@ -339,7 +312,7 @@ public class AIWeatherService {
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        
+
         if (response.statusCode() == 200) {
             try {
                 JsonNode jsonResponse = objectMapper.readTree(response.body());
@@ -354,14 +327,12 @@ public class AIWeatherService {
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Error parsing OpenAI landmark response: " + e.getMessage());
                 throw e;
             }
         } else {
-            System.err.println("OpenAI Landmark API error: " + response.statusCode() + " - " + response.body());
             throw new RuntimeException("OpenAI API call failed: " + response.statusCode());
         }
-        
+
         return null;
     }
 
@@ -392,7 +363,7 @@ public class AIWeatherService {
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        
+
         if (response.statusCode() == 200) {
             try {
                 JsonNode jsonResponse = objectMapper.readTree(response.body());
@@ -406,13 +377,11 @@ public class AIWeatherService {
                         }
                     }
                 }
-                return "AI crafted a beautiful weather story, but there was an issue retrieving it.";
+                return "AI response unavailable";
             } catch (Exception e) {
-                System.err.println("Error parsing OpenAI response: " + e.getMessage());
-                return "The AI is painting a vivid picture of the weather, but the canvas is temporarily unavailable.";
+                return "AI response unavailable";
             }
         } else {
-            System.err.println("OpenAI API error: " + response.statusCode() + " - " + response.body());
             throw new RuntimeException("OpenAI API call failed: " + response.statusCode());
         }
     }

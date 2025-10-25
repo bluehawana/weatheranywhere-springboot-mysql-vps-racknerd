@@ -54,24 +54,38 @@ public class WeatherController {
 
     private String buildHtml(String city, WeatherInfo weatherInfo) {
         StringBuilder sb = new StringBuilder();
-        
-        sb.append("<h2>Weather of ").append(city).append("</h2>");
-        sb.append("<p>Temperature: ").append(weatherInfo.getTemperature()).append("°C</p>");
-        sb.append("<p>Wind Speed: ").append(weatherInfo.getWindSpeed()).append(" m/s</p>");
-        sb.append("<p>Description: ").append(weatherInfo.getDescription()).append("</p>");
-        
-        // Add weather icon from Noun Project
+
+        // Container with wider max-width and responsive scaling
+        sb.append("<div style='max-width: 800px; margin: 0 auto; padding: 15px; font-size: 14px; overflow-x: auto;'>");
+
+        sb.append("<h2 style='margin-bottom: 15px;'>Weather of ").append(city).append("</h2>");
+
+        // Weather info and ASCII art side by side
+        sb.append("<div style='display: flex; align-items: flex-start; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;'>");
+
+        // Left side: Weather details
+        sb.append("<div style='flex: 1; min-width: 200px;'>");
+        sb.append("<p style='margin: 5px 0;'><strong>Temperature:</strong> ").append(weatherInfo.getTemperature()).append("°C</p>");
+        sb.append("<p style='margin: 5px 0;'><strong>Wind Speed:</strong> ").append(weatherInfo.getWindSpeed()).append(" m/s</p>");
+        sb.append("<p style='margin: 5px 0;'><strong>Description:</strong> ").append(weatherInfo.getDescription()).append("</p>");
+        sb.append("</div>");
+
+        // Right side: Weather ASCII icon
         String weatherIcon = cityLandmarkService.getWeatherIcon(weatherInfo.getDescription());
-        sb.append("<div style='text-align: center; margin: 15px 0;'>");
+        sb.append("<div style='flex-shrink: 0;'>");
         sb.append(weatherIcon);
         sb.append("</div>");
-        
-        // Add city landmark icon from Noun Project
+
+        sb.append("</div>"); // End flex container
+
+        // City landmark SVG (centered, with constrained size)
         String cityIcon = cityLandmarkService.getCityIcon(city);
-        sb.append("<div style='text-align: center; margin: 15px 0;'>");
+        sb.append("<div style='text-align: center; margin: 20px 0;'>");
         sb.append(cityIcon);
         sb.append("</div>");
-        
+
+        sb.append("</div>"); // End main container
+
         return sb.toString();
     }
 }

@@ -1,32 +1,34 @@
-# OpenCage Geocoding API Key (get from https://opencagedata.com/)
-# For local development, replace YOUR_OPENCAGE_API_KEY_HERE with your actual key
-# For Heroku deployment, set OPENCAGE_API_KEY environment variable
-opencage.api.key=${OPENCAGE_API_KEY:YOUR_OPENCAGE_API_KEY_HERE}
+# ==============================
+# OpenAI API Configuration
+# ==============================
+server.port=8081
+openai.api.key=YOUR_OPENAI_API_KEY_HERE
 
-# Database Configuration (JawsDB MySQL for production, H2 for local development)
-spring.datasource.url=${JAWSDB_URL:jdbc:h2:mem:testdb}
-spring.datasource.driverClassName=${DATABASE_DRIVER:org.h2.Driver}
-spring.datasource.username=${DATABASE_USERNAME:sa}
-spring.datasource.password=${DATABASE_PASSWORD:}
+# ==============================
+# OpenCage Geocoding API Configuration
+# ==============================
+opencage.api.key=YOUR_OPENCAGE_API_KEY_HERE
 
-# H2 Console (for debugging - only works with H2)
-spring.h2.console.enabled=true
-spring.h2.console.path=/h2-console
+# ==============================
+# Database Configuration (Local MySQL)
+# ==============================
+spring.datasource.url=jdbc:mysql://localhost:3306/weatheranywhere?useSSL=false&allowPublicKeyRetrieval=true
+spring.datasource.username=root
+spring.datasource.password=YOUR_DATABASE_PASSWORD_HERE
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
-# JPA Configuration
-spring.jpa.database-platform=${JPA_DIALECT:org.hibernate.dialect.H2Dialect}
-spring.jpa.hibernate.ddl-auto=create-drop
+# ==============================
+# JPA & Hibernate Configuration
+# ==============================
+spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
-
-# Initialize database
+# ==============================
+# SQL Initialization
+# ==============================
 spring.sql.init.mode=always
 
-# AI Services Configuration
-# OpenAI API Key for enhanced weather descriptions (optional)
-# For local development, replace YOUR_OPENAI_API_KEY_HERE with your actual key
-# For Heroku deployment, set OPENAI_API_KEY environment variable
-openai.api.key=${OPENAI_API_KEY:YOUR_OPENAI_API_KEY_HERE}
-
-# Future AI integrations
-# spline.ai.key=${SPLINE_AI_KEY:}
-# luma.ai.key=${LUMA_AI_KEY:}
+# ==============================
+# H2 Console (disabled for MySQL)
+# ==============================
+spring.h2.console.enabled=false

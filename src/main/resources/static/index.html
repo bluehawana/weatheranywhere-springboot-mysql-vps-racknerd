@@ -8,6 +8,26 @@
     <link rel="stylesheet" type="text/css" href="styles.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
+        // Automatic theme switching based on time (18:00-08:00 = dark, 08:00-18:00 = white)
+        function applyThemeBasedOnTime() {
+            const now = new Date();
+            const hour = now.getHours();
+
+            // Dark theme: 18:00 (6 PM) to 08:00 (8 AM)
+            // White theme: 08:00 (8 AM) to 18:00 (6 PM)
+            if (hour >= 18 || hour < 8) {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+        }
+
+        // Apply theme on page load
+        applyThemeBasedOnTime();
+
+        // Check and update theme every minute
+        setInterval(applyThemeBasedOnTime, 60000);
+
         $(document).ready(function() {
             $('#weatherForm').submit(function(event) {
                 event.preventDefault(); // Prevent the form from submitting normally
@@ -27,8 +47,8 @@
         });
     </script>
 </head>
-<body>
-<h1>Welcome to the Weather Client!</h1>
+<body style="text-align: center; max-width: 1200px; margin: 0 auto; padding: 20px;">
+<h1>🌐 Welcome to WeatherAnywhere - Your 90s Weather Portal! 🌦️</h1>
 <pre class="ascii-art">
     ____    __    ____  _______     ___   .___________. __    __     _______ .______              ___      .__   __. ____    ____ ____    __    ____  __    __   _______ .______       _______
     \   \  /  \  /   / |   ____|   /   \  |           ||  |  |  | |   ____||   _  \              /   \     |  \ |  | \   \  /   / \   \  /  \  /   / |  |  |  | |   ____||   _  \     |   ____|
@@ -70,13 +90,14 @@ _.-'       .-'    .'   .'    /
 
     (Art by Michal 'Goldmoon' Kwasniewski)
 </pre>
-<p>Enter the name of a city to get the current weather information.</p>
-<p>Your input will be searched online with latitude and longitude by the name of your input city.</p>
-<form id="weatherForm" method="get">
-    <label for="city">Enter a city:</label>
-    <input type="text" id="city" name="city">
-    <input type="submit" value="Get Weather">
+<p><strong>💾 Dial-Up Approved Since 1999! 📟</strong> | Type ANY city, town, or village - we search by position! 📍</p>
+<p><em>More cities than iOS & Android combined. Doubt it? Try it!</em> 🌍 Stockholm • Tokyo • Beijing • Miami - ASCII weather 24/7!</p>
+<p style="font-family: 'Courier New', monospace; color: #00ff00; margin: 10px 0;">⚡ No Flash | No Java | Pure HTML Magic ⚡</p>
+<form id="weatherForm" method="get" style="margin: 30px auto; max-width: 600px;">
+    <label for="city" style="font-size: 18px; font-weight: bold;">Enter a city:</label><br><br>
+    <input type="text" id="city" name="city" style="padding: 10px; font-size: 16px; width: 300px; border: 2px solid #333;">
+    <input type="submit" value="Get Weather" style="padding: 10px 20px; font-size: 16px; background-color: #0066cc; color: white; border: 2px solid #004080; cursor: pointer; font-weight: bold;">
 </form>
-<div id="weatherDiv"></div> <!-- This div will contain the weather information -->
+<div id="weatherDiv" style="margin-top: 30px;"></div> <!-- This div will contain the weather information -->
 </body>
 </html>

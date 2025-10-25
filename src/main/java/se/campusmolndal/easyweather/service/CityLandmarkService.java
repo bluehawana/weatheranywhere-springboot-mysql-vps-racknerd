@@ -43,36 +43,28 @@ public class CityLandmarkService {
         GeocodingService.LocationInfo locationInfo = null;
         try {
             if (geocodingService != null) {
-                System.out.println("Getting location info for " + cityName + " via OpenCage API");
                 locationInfo = geocodingService.getLocationInfo(cityName);
-                if (locationInfo != null) {
-                    System.out.println("Location info: " + locationInfo.toString());
-                }
             }
         } catch (Exception e) {
-            System.err.println("Geocoding failed for " + cityName + ": " + e.getMessage());
+            // Silent fallback - geocoding is optional
         }
-        
+
         // Try OpenAI-generated SVG landmarks with retries for important cities
         try {
             if (aiWeatherService != null) {
                 // Create a dummy weather info for the SVG generation
-                se.campusmolndal.easyweather.models.WeatherInfo dummyWeather = 
+                se.campusmolndal.easyweather.models.WeatherInfo dummyWeather =
                     new se.campusmolndal.easyweather.models.WeatherInfo(20.0, 3.0, "clear", 0);
-                
+
                 // Try up to 2 times for major cities to get proper landmarks
                 int maxAttempts = isMajorCity(cityName) ? 2 : 1;
-                
+
                 for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-                    System.out.println("Attempting OpenAI landmark generation for " + cityName + " (attempt " + attempt + "/" + maxAttempts + ")");
-                    
-                    // Use the enhanced method with location info
                     String aiSvg = aiWeatherService.generateAILandmarkSVG(cityName, dummyWeather, locationInfo);
                     if (aiSvg != null && aiSvg.contains("<svg")) {
-                        System.out.println("Successfully generated location-aware OpenAI SVG for " + cityName);
                         return aiSvg;
                     }
-                    
+
                     // Small delay between attempts for major cities
                     if (attempt < maxAttempts) {
                         Thread.sleep(1000);
@@ -80,18 +72,16 @@ public class CityLandmarkService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("OpenAI SVG generation failed for " + cityName + ": " + e.getMessage());
+            // Silent fallback to hand-crafted landmarks
         }
-        
+
         // If OpenAI fails, try city-specific landmark SVGs before falling back to emojis
         String specificLandmark = getCitySpecificLandmarkSVG(cityName);
         if (specificLandmark != null) {
-            System.out.println("Using hand-crafted landmark SVG for " + cityName);
             return specificLandmark;
         }
-        
+
         // Final fallback to city-specific emoji
-        System.out.println("Using fallback emoji for " + cityName);
         return getCityEmoji(cityName);
     }
     
@@ -140,15 +130,12 @@ public class CityLandmarkService {
             if (aiWeatherService == null) {
                 return null;
             }
-            
+
             String prompt = String.format(
-                "What is the most famous landmark or monument in %s? " +
-                "Respond with ONLY the landmark name in 2-3 words maximum. " +
-                "Examples: 'eiffel tower', 'big ben', 'statue liberty', 'poseidon statue'. " +
-                "No explanations, just the landmark name.", 
+                "What is the most famous landmark in %s? Respond with ONLY the landmark name in 2-3 words.",
                 cityName
             );
-            
+
             String aiResponse = aiWeatherService.callOpenAIForLandmark(prompt);
             if (aiResponse != null && !aiResponse.trim().isEmpty()) {
                 // Clean up the response - remove quotes, extra words
@@ -157,14 +144,13 @@ public class CityLandmarkService {
                     .replaceAll("\\b(the|a|an)\\b", "")
                     .replaceAll("\\s+", " ")
                     .trim();
-                
-                System.out.println("AI suggested landmark for " + cityName + ": " + aiResponse);
+
                 return aiResponse;
             }
         } catch (Exception e) {
-            System.err.println("AI landmark suggestion failed for " + cityName + ": " + e.getMessage());
+            // Silent fallback
         }
-        
+
         return null;
     }
 
@@ -239,18 +225,14 @@ public class CityLandmarkService {
             String baseUrl = "https://api.thenounproject.com/v2/icon";
             String query = "query=" + URLEncoder.encode(term, StandardCharsets.UTF_8) + "&limit=1&thumbnail_size=" + size;
             String url = baseUrl + "?" + query;
-            
-            System.out.println("Fetching icon for term: " + term);
-            System.out.println("API URL: " + url);
-            
+
             // Generate OAuth1 signature
             String authHeader = generateOAuth1Header("GET", baseUrl, query);
-            
+
             if (authHeader.isEmpty()) {
-                System.err.println("Failed to generate OAuth header - API keys might be missing");
                 return getFallbackIcon(term, size);
             }
-            
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Authorization", authHeader)
@@ -259,30 +241,21 @@ public class CityLandmarkService {
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            
-            System.out.println("Response code: " + response.statusCode());
-            
+
             if (response.statusCode() == 200) {
                 String body = response.body();
-                System.out.println("Response body preview: " + body.substring(0, Math.min(200, body.length())));
-                
+
                 // Parse JSON response to extract icon URL
                 String iconUrl = extractIconUrlFromJson(body);
                 if (iconUrl != null && !iconUrl.isEmpty()) {
-                    System.out.println("Found icon URL: " + iconUrl);
-                    return String.format("<img src='%s' alt='%s' style='width: %dpx; height: %dpx;' />", 
+                    return String.format("<img src='%s' alt='%s' style='width: %dpx; height: %dpx;' />",
                                        iconUrl, term, size, size);
                 }
-            } else if (response.statusCode() == 401) {
-                System.err.println("Noun Project API authentication failed - check your API keys");
-            } else {
-                System.err.println("Noun Project API error: " + response.statusCode() + " - " + response.body());
             }
         } catch (Exception e) {
-            System.err.println("Failed to fetch icon for: " + term + " - " + e.getMessage());
-            e.printStackTrace();
+            // Silent fallback
         }
-        
+
         return getFallbackIcon(term, size);
     }
     
@@ -291,10 +264,10 @@ public class CityLandmarkService {
             // OAuth1 parameters - simplified for request token flow
             String nonce = generateNonce();
             String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
-            
+
             // Collect all parameters for sorting
             java.util.Map<String, String> allParams = new java.util.TreeMap<>();
-            
+
             // Add query parameters - decode them first, then re-encode properly
             String[] paramPairs = parameters.split("&");
             for (String param : paramPairs) {
@@ -306,14 +279,14 @@ public class CityLandmarkService {
                     }
                 }
             }
-            
+
             // Add OAuth parameters
             allParams.put("oauth_consumer_key", nounProjectApiKey);
             allParams.put("oauth_nonce", nonce);
             allParams.put("oauth_signature_method", "HMAC-SHA1");
             allParams.put("oauth_timestamp", timestamp);
             allParams.put("oauth_version", "1.0");
-            
+
             // Build sorted parameter string for signature
             StringBuilder sortedParams = new StringBuilder();
             for (java.util.Map.Entry<String, String> entry : allParams.entrySet()) {
@@ -322,28 +295,27 @@ public class CityLandmarkService {
                           .append("=")
                           .append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
             }
-            
+
             // Create signature base string
-            String signatureBaseString = method + "&" + 
-                URLEncoder.encode(baseUrl, StandardCharsets.UTF_8) + "&" + 
+            String signatureBaseString = method + "&" +
+                URLEncoder.encode(baseUrl, StandardCharsets.UTF_8) + "&" +
                 URLEncoder.encode(sortedParams.toString(), StandardCharsets.UTF_8);
-            
+
             // Create signing key - for request token (no oauth_token_secret)
             String signingKey = URLEncoder.encode(nounProjectApiSecret, StandardCharsets.UTF_8) + "&";
-            
+
             // Generate signature
             Mac mac = Mac.getInstance("HmacSHA1");
             SecretKeySpec secretKey = new SecretKeySpec(signingKey.getBytes(StandardCharsets.UTF_8), "HmacSHA1");
             mac.init(secretKey);
             byte[] signature = mac.doFinal(signatureBaseString.getBytes(StandardCharsets.UTF_8));
             String encodedSignature = Base64.getEncoder().encodeToString(signature);
-            
+
             // Build Authorization header - simpler format matching RestSharp
             return String.format("OAuth oauth_consumer_key=\"%s\", oauth_nonce=\"%s\", oauth_signature=\"%s\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"%s\", oauth_version=\"1.0\"",
                 nounProjectApiKey, nonce, encodedSignature, timestamp);
-                
+
         } catch (Exception e) {
-            System.err.println("OAuth1 signature generation failed: " + e.getMessage());
             return "";
         }
     }
@@ -447,64 +419,64 @@ public class CityLandmarkService {
     
     private String getASCIIWeatherIcon(String weatherDescription) {
         String desc = weatherDescription.toLowerCase();
-        
+
         if (desc.contains("clear") || desc.contains("sunny")) {
-            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+            return "<pre style='display: inline-block; margin: 10px 0; padding: 10px; font-family: monospace; font-size: 14px; line-height: 1.4;'>" +
                    "    \\   /    \n" +
                    "     .-.     \n" +
                    "  ‒ (   ) ‒  \n" +
                    "     `-'     \n" +
-                   "    /   \\    </pre>";
+                   "    /   \\    \n</pre>";
         } else if (desc.contains("rain") || desc.contains("shower")) {
-            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+            return "<pre style='display: inline-block; margin: 10px 0; padding: 10px; font-family: monospace; font-size: 14px; line-height: 1.4;'>" +
                    "     .-.     \n" +
                    "    (   ).   \n" +
                    "   (___(__)  \n" +
                    "    ' ' ' '  \n" +
-                   "   ' ' ' '   </pre>";
+                   "   ' ' ' '   \n</pre>";
         } else if (desc.contains("snow")) {
-            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+            return "<pre style='display: inline-block; margin: 10px 0; padding: 10px; font-family: monospace; font-size: 14px; line-height: 1.4;'>" +
                    "     .-.     \n" +
                    "    (   ).   \n" +
                    "   (___(__)  \n" +
                    "    * * * *  \n" +
-                   "   * * * *   </pre>";
+                   "   * * * *   \n</pre>";
         } else if (desc.contains("cloud")) {
-            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+            return "<pre style='display: inline-block; margin: 10px 0; padding: 10px; font-family: monospace; font-size: 14px; line-height: 1.4;'>" +
                    "             \n" +
                    "     .--.    \n" +
                    "  .-(    ).  \n" +
                    " (___.__)__) \n" +
-                   "             </pre>";
+                   "             \n</pre>";
         } else if (desc.contains("wind")) {
-            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+            return "<pre style='display: inline-block; margin: 10px 0; padding: 10px; font-family: monospace; font-size: 14px; line-height: 1.4;'>" +
                    "             \n" +
                    "  ~~~   ~~~ \n" +
                    " ~~~ ~~~ ~~~\n" +
                    "~~~ ~~~ ~~~ \n" +
-                   "             </pre>";
+                   "             \n</pre>";
         } else if (desc.contains("thunderstorm") || desc.contains("storm")) {
-            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+            return "<pre style='display: inline-block; margin: 10px 0; padding: 10px; font-family: monospace; font-size: 14px; line-height: 1.4;'>" +
                    "     .-.     \n" +
                    "    (   ).   \n" +
                    "   (___(__)  \n" +
                    "    ⚡ ' ⚡   \n" +
-                   "   ' ⚡ ' '   </pre>";
+                   "   ' ⚡ ' '   \n</pre>";
         } else if (desc.contains("fog") || desc.contains("mist")) {
-            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+            return "<pre style='display: inline-block; margin: 10px 0; padding: 10px; font-family: monospace; font-size: 14px; line-height: 1.4;'>" +
                    "             \n" +
                    " _ - _ - _ - \n" +
                    "  _ - _ - _  \n" +
                    " _ - _ - _ - \n" +
-                   "             </pre>";
+                   "             \n</pre>";
         } else {
             // Default partly cloudy
-            return "<pre style='display: inline-block; margin: 0; font-family: monospace; font-size: 14px;'>" +
+            return "<pre style='display: inline-block; margin: 10px 0; padding: 10px; font-family: monospace; font-size: 14px; line-height: 1.4;'>" +
                    "   \\  /      \n" +
                    " _ /\"\".-.    \n" +
                    "   \\_(   ).  \n" +
                    "   /(___(__)  \n" +
-                   "             </pre>";
+                   "             \n</pre>";
         }
     }
     
