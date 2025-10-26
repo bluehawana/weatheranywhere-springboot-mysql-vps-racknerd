@@ -1,375 +1,506 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🎨 Handdrawn Weather Experience</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Caveat:wght@400;600;700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      @import url("https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Caveat:wght@400;600;700&display=swap");
 
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Kalam", cursive;
+        background: linear-gradient(135deg, #f8f6f0 0%, #e8e2d5 100%);
+        color: #5d4e37;
+        min-height: 100vh;
+        padding: 20px;
+        background-image: radial-gradient(
+            circle at 20% 80%,
+            rgba(120, 119, 198, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(255, 177, 153, 0.1) 0%,
+            transparent 50%
+          );
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        position: relative;
+      }
+
+      .header h1 {
+        font-family: "Caveat", cursive;
+        font-size: 4rem;
+        font-weight: 700;
+        color: #8b7355;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        transform: rotate(-1deg);
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.2rem;
+        color: #6b5b47;
+        font-style: italic;
+        transform: rotate(0.5deg);
+      }
+
+      .sketch-border {
+        border: 3px solid #8b7355;
+        border-radius: 20px;
+        background: rgba(248, 246, 240, 0.9);
+        padding: 30px;
+        margin-bottom: 30px;
+        position: relative;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transform: rotate(-0.2deg);
+      }
+
+      .sketch-border::before {
+        content: "";
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        border: 2px dashed #d4af37;
+        border-radius: 25px;
+        opacity: 0.5;
+      }
+
+      .search-section {
+        text-align: center;
+        transform: rotate(0.3deg);
+      }
+
+      .search-input {
+        width: 300px;
+        padding: 15px 20px;
+        font-size: 1.2rem;
+        border: 3px solid #8b7355;
+        border-radius: 25px;
+        background: #fff;
+        color: #5d4e37;
+        font-family: "Kalam", cursive;
+        margin-bottom: 20px;
+        outline: none;
+        transform: rotate(-0.5deg);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .search-input:focus {
+        border-color: #d4af37;
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+      }
+
+      .sketch-button {
+        background: linear-gradient(45deg, #d4af37, #8b7355);
+        color: white;
+        border: 3px solid #5d4e37;
+        padding: 12px 30px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        font-family: "Kalam", cursive;
+        font-weight: 600;
+        margin: 10px;
+        transition: all 0.3s ease;
+        transform: rotate(0.8deg);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .sketch-button:hover {
+        transform: rotate(-0.5deg) scale(1.05);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .weather-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
+      }
+
+      .demo-cities {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .city-button {
+        background: rgba(255, 255, 255, 0.8);
+        border: 2px solid #8b7355;
+        border-radius: 20px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-family: "Kalam", cursive;
+        color: #5d4e37;
+        transition: all 0.3s ease;
+        transform: rotate(-0.3deg);
+      }
+
+      .city-button:hover {
+        background: #d4af37;
+        color: white;
+        transform: rotate(0.5deg) scale(1.1);
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        font-style: italic;
+        color: #8b7355;
+      }
+
+      .loading-sketch {
+        width: 60px;
+        height: 60px;
+        border: 4px solid #d4af37;
+        border-top: 4px solid #8b7355;
+        border-radius: 50%;
+        animation: sketch-spin 2s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes sketch-spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .artistic-note {
+        background: rgba(255, 248, 220, 0.9);
+        border: 2px dashed #d4af37;
+        border-radius: 15px;
+        padding: 20px;
+        margin: 30px 0;
+        font-style: italic;
+        text-align: center;
+        transform: rotate(-0.5deg);
+      }
+
+      .artistic-note::before {
+        content: "🎨";
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      @media (max-width: 768px) {
         body {
-            font-family: 'Kalam', cursive;
-            background: linear-gradient(135deg, #f8f6f0 0%, #e8e2d5 100%);
-            color: #5d4e37;
-            min-height: 100vh;
-            padding: 20px;
-            background-image: 
-                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 177, 153, 0.1) 0%, transparent 50%);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            position: relative;
+          padding: 10px;
         }
 
         .header h1 {
-            font-family: 'Caveat', cursive;
-            font-size: 4rem;
-            font-weight: 700;
-            color: #8b7355;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            transform: rotate(-1deg);
-            margin-bottom: 10px;
+          font-size: 2.5rem;
+          word-wrap: break-word;
         }
 
         .header p {
-            font-size: 1.2rem;
-            color: #6b5b47;
-            font-style: italic;
-            transform: rotate(0.5deg);
-        }
-
-        .sketch-border {
-            border: 3px solid #8b7355;
-            border-radius: 20px;
-            background: rgba(248, 246, 240, 0.9);
-            padding: 30px;
-            margin-bottom: 30px;
-            position: relative;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            transform: rotate(-0.2deg);
-        }
-
-        .sketch-border::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            border: 2px dashed #d4af37;
-            border-radius: 25px;
-            opacity: 0.5;
-        }
-
-        .search-section {
-            text-align: center;
-            transform: rotate(0.3deg);
+          font-size: 1rem;
         }
 
         .search-input {
-            width: 300px;
-            padding: 15px 20px;
-            font-size: 1.2rem;
-            border: 3px solid #8b7355;
-            border-radius: 25px;
-            background: #fff;
-            color: #5d4e37;
-            font-family: 'Kalam', cursive;
-            margin-bottom: 20px;
-            outline: none;
-            transform: rotate(-0.5deg);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .search-input:focus {
-            border-color: #d4af37;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+          width: 90%;
+          max-width: 300px;
+          font-size: 1rem;
+          padding: 12px 15px;
         }
 
         .sketch-button {
-            background: linear-gradient(45deg, #d4af37, #8b7355);
-            color: white;
-            border: 3px solid #5d4e37;
-            padding: 12px 30px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-family: 'Kalam', cursive;
-            font-weight: 600;
-            margin: 10px;
-            transition: all 0.3s ease;
-            transform: rotate(0.8deg);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .sketch-button:hover {
-            transform: rotate(-0.5deg) scale(1.05);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+          font-size: 1rem;
+          padding: 10px 20px;
         }
 
         .weather-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .sketch-border {
+          padding: 20px;
         }
 
         .demo-cities {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
+          gap: 10px;
         }
 
         .city-button {
-            background: rgba(255,255,255,0.8);
-            border: 2px solid #8b7355;
-            border-radius: 20px;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-family: 'Kalam', cursive;
-            color: #5d4e37;
-            transition: all 0.3s ease;
-            transform: rotate(-0.3deg);
+          font-size: 0.9rem;
+          padding: 6px 12px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header h1 {
+          font-size: 2rem;
         }
 
-        .city-button:hover {
-            background: #d4af37;
-            color: white;
-            transform: rotate(0.5deg) scale(1.1);
+        .header p {
+          font-size: 0.9rem;
         }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            font-style: italic;
-            color: #8b7355;
+        .search-input {
+          width: 95%;
+          font-size: 0.9rem;
+          padding: 10px 12px;
         }
 
-        .loading-sketch {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #d4af37;
-            border-top: 4px solid #8b7355;
-            border-radius: 50%;
-            animation: sketch-spin 2s linear infinite;
-            margin: 0 auto 20px;
+        .sketch-button {
+          font-size: 0.9rem;
+          padding: 8px 16px;
         }
 
-        @keyframes sketch-spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .sketch-border {
+          padding: 15px;
         }
 
         .artistic-note {
-            background: rgba(255, 248, 220, 0.9);
-            border: 2px dashed #d4af37;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 30px 0;
-            font-style: italic;
-            text-align: center;
-            transform: rotate(-0.5deg);
+          font-size: 0.9rem;
+          padding: 15px;
         }
-
-        .artistic-note::before {
-            content: "🎨";
-            font-size: 2rem;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .header h1 { font-size: 2.5rem; }
-            .search-input { width: 250px; font-size: 1rem; }
-            .weather-gallery { grid-template-columns: 1fr; }
-            .sketch-border { padding: 20px; }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>🎨 Handdrawn Weather</h1>
-            <p>Where art meets meteorology</p>
-        </div>
+      <div class="header">
+        <h1>🎨 Handdrawn Weather</h1>
+        <p>Where art meets meteorology</p>
+      </div>
 
-        <div class="sketch-border">
-            <div class="search-section">
-                <h3 style="font-family: 'Caveat', cursive; font-size: 2rem; margin-bottom: 20px; color: #8b7355;">Create Your Weather Sketch</h3>
-                <input type="text" class="search-input" id="cityInput" placeholder="Enter a city name...">
-                <br>
-                <button class="sketch-button" id="searchBtn">🖌️ Draw Weather</button>
-                
-                <div class="demo-cities">
-                    <div class="city-button" onclick="drawWeather('Paris')">🗼 Paris</div>
-                    <div class="city-button" onclick="drawWeather('New York')">🏙️ New York</div>
-                    <div class="city-button" onclick="drawWeather('Tokyo')">🗾 Tokyo</div>
-                    <div class="city-button" onclick="drawWeather('London')">🏰 London</div>
-                    <div class="city-button" onclick="drawWeather('Stockholm')">🏔️ Stockholm</div>
-                    <div class="city-button" onclick="drawWeather('Mohe')">❄️ Mohe</div>
-                </div>
+      <div class="sketch-border">
+        <div class="search-section">
+          <h3
+            style="
+              font-family: 'Caveat', cursive;
+              font-size: 2rem;
+              margin-bottom: 20px;
+              color: #8b7355;
+            "
+          >
+            Create Your Weather Sketch
+          </h3>
+          <input
+            type="text"
+            class="search-input"
+            id="cityInput"
+            placeholder="Enter a city name..."
+          />
+          <br />
+          <button class="sketch-button" id="searchBtn">🖌️ Draw Weather</button>
+
+          <div class="demo-cities">
+            <div class="city-button" onclick="drawWeather('Paris')">
+              🗼 Paris
             </div>
-        </div>
-
-        <div id="loadingDiv" class="loading" style="display: none;">
-            <div class="loading-sketch"></div>
-            <p>Sketching your weather masterpiece...</p>
-        </div>
-
-        <div class="weather-gallery" id="weatherGallery">
-            <!-- Weather compositions will be added here -->
-        </div>
-
-        <div class="artistic-note">
-            <strong>Artistic Vision:</strong> Each weather composition combines handdrawn city illustrations with animated weather effects. 
-            The PNG city backgrounds feature watercolor, ink, and pencil techniques, while the weather overlays use traditional animation principles 
-            to create a unique, artistic weather experience.
-        </div>
-
-        <div class="sketch-border">
-            <h3 style="font-family: 'Caveat', cursive; font-size: 2rem; margin-bottom: 20px; color: #8b7355; text-align: center;">🎭 Artistic Styles Available</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center;">
-                <div>
-                    <h4>🎨 City Illustrations</h4>
-                    <ul style="list-style: none; padding: 0;">
-                        <li>• Watercolor skylines</li>
-                        <li>• Ink pen drawings</li>
-                        <li>• Pencil sketches</li>
-                        <li>• Charcoal landscapes</li>
-                    </ul>
-                </div>
-                <div>
-                    <h4>🌦️ Weather Animations</h4>
-                    <ul style="list-style: none; padding: 0;">
-                        <li>• Hand-drawn rain drops</li>
-                        <li>• Sketched snowflakes</li>
-                        <li>• Painted sun rays</li>
-                        <li>• Artistic cloud wisps</li>
-                    </ul>
-                </div>
-                <div>
-                    <h4>✨ Special Effects</h4>
-                    <ul style="list-style: none; padding: 0;">
-                        <li>• Paper texture overlays</li>
-                        <li>• Pencil stroke filters</li>
-                        <li>• Watercolor blending</li>
-                        <li>• Hand-lettered text</li>
-                    </ul>
-                </div>
+            <div class="city-button" onclick="drawWeather('New York')">
+              🏙️ New York
             </div>
+            <div class="city-button" onclick="drawWeather('Tokyo')">
+              🗾 Tokyo
+            </div>
+            <div class="city-button" onclick="drawWeather('London')">
+              🏰 London
+            </div>
+            <div class="city-button" onclick="drawWeather('Stockholm')">
+              🏔️ Stockholm
+            </div>
+            <div class="city-button" onclick="drawWeather('Mohe')">❄️ Mohe</div>
+          </div>
         </div>
+      </div>
+
+      <div id="loadingDiv" class="loading" style="display: none">
+        <div class="loading-sketch"></div>
+        <p>Sketching your weather masterpiece...</p>
+      </div>
+
+      <div class="weather-gallery" id="weatherGallery">
+        <!-- Weather compositions will be added here -->
+      </div>
+
+      <div class="artistic-note">
+        <strong>Artistic Vision:</strong> Each weather composition combines
+        handdrawn city illustrations with animated weather effects. The PNG city
+        backgrounds feature watercolor, ink, and pencil techniques, while the
+        weather overlays use traditional animation principles to create a
+        unique, artistic weather experience.
+      </div>
+
+      <div class="sketch-border">
+        <h3
+          style="
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #8b7355;
+            text-align: center;
+          "
+        >
+          🎭 Artistic Styles Available
+        </h3>
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            text-align: center;
+          "
+        >
+          <div>
+            <h4>🎨 City Illustrations</h4>
+            <ul style="list-style: none; padding: 0">
+              <li>• Watercolor skylines</li>
+              <li>• Ink pen drawings</li>
+              <li>• Pencil sketches</li>
+              <li>• Charcoal landscapes</li>
+            </ul>
+          </div>
+          <div>
+            <h4>🌦️ Weather Animations</h4>
+            <ul style="list-style: none; padding: 0">
+              <li>• Hand-drawn rain drops</li>
+              <li>• Sketched snowflakes</li>
+              <li>• Painted sun rays</li>
+              <li>• Artistic cloud wisps</li>
+            </ul>
+          </div>
+          <div>
+            <h4>✨ Special Effects</h4>
+            <ul style="list-style: none; padding: 0">
+              <li>• Paper texture overlays</li>
+              <li>• Pencil stroke filters</li>
+              <li>• Watercolor blending</li>
+              <li>• Hand-lettered text</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-        class HanddrawnWeatherApp {
-            constructor() {
-                this.setupEventListeners();
+      class HanddrawnWeatherApp {
+        constructor() {
+          this.setupEventListeners();
+        }
+
+        setupEventListeners() {
+          const searchBtn = document.getElementById("searchBtn");
+          const cityInput = document.getElementById("cityInput");
+
+          searchBtn.addEventListener("click", () => this.searchWeather());
+          cityInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") this.searchWeather();
+          });
+
+          cityInput.focus();
+        }
+
+        async searchWeather() {
+          const city = document.getElementById("cityInput").value.trim();
+          if (!city) {
+            alert("Please enter a city name to create your weather sketch!");
+            return;
+          }
+
+          await this.drawWeather(city);
+        }
+
+        async drawWeather(city) {
+          this.showLoading();
+
+          try {
+            // Fetch weather data
+            const response = await fetch(
+              `/api/weather?city=${encodeURIComponent(city)}`
+            );
+
+            if (!response.ok) {
+              throw new Error(`Weather data not found for ${city}`);
             }
 
-            setupEventListeners() {
-                const searchBtn = document.getElementById('searchBtn');
-                const cityInput = document.getElementById('cityInput');
+            const weatherHtml = await response.text();
+            const weatherData = this.parseWeatherData(weatherHtml, city);
 
-                searchBtn.addEventListener('click', () => this.searchWeather());
-                cityInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.searchWeather();
-                });
+            // Generate handdrawn composition
+            const composition = this.generateHanddrawnComposition(
+              city,
+              weatherData
+            );
 
-                cityInput.focus();
+            // Add to gallery
+            this.addToGallery(composition);
+          } catch (error) {
+            console.error("Error creating weather sketch:", error);
+            this.showError(
+              `Unable to create weather sketch for ${city}. Please try again.`
+            );
+          } finally {
+            this.hideLoading();
+          }
+        }
+
+        parseWeatherData(html, city) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+
+          const paragraphs = doc.querySelectorAll("p");
+          let temperature = "N/A";
+          let windSpeed = "N/A";
+          let condition = "N/A";
+          let weatherCode = 0;
+
+          paragraphs.forEach((p) => {
+            const text = p.textContent;
+            if (text.includes("Temperature:")) {
+              temperature = text.replace("Temperature: ", "").trim();
+            } else if (text.includes("Wind Speed:")) {
+              windSpeed = text.replace("Wind Speed: ", "").trim();
+            } else if (text.includes("Description:")) {
+              condition = text.replace("Description: ", "").trim();
+            } else if (text.includes("Weather Code:")) {
+              weatherCode =
+                parseInt(text.replace("Weather Code: ", "").trim()) || 0;
             }
+          });
 
-            async searchWeather() {
-                const city = document.getElementById('cityInput').value.trim();
-                if (!city) {
-                    alert('Please enter a city name to create your weather sketch!');
-                    return;
-                }
+          return {
+            city: city,
+            temperature: temperature,
+            windSpeed: windSpeed,
+            condition: condition,
+            weatherCode: weatherCode,
+          };
+        }
 
-                await this.drawWeather(city);
-            }
+        generateHanddrawnComposition(city, weatherData) {
+          const weatherType = this.mapWeatherCodeToType(
+            weatherData.weatherCode
+          );
+          const emoji = this.getWeatherEmoji(weatherType);
+          const color = this.getWeatherColor(weatherType);
 
-            async drawWeather(city) {
-                this.showLoading();
-
-                try {
-                    // Fetch weather data
-                    const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
-                    
-                    if (!response.ok) {
-                        throw new Error(`Weather data not found for ${city}`);
-                    }
-
-                    const weatherHtml = await response.text();
-                    const weatherData = this.parseWeatherData(weatherHtml, city);
-                    
-                    // Generate handdrawn composition
-                    const composition = this.generateHanddrawnComposition(city, weatherData);
-                    
-                    // Add to gallery
-                    this.addToGallery(composition);
-                    
-                } catch (error) {
-                    console.error('Error creating weather sketch:', error);
-                    this.showError(`Unable to create weather sketch for ${city}. Please try again.`);
-                } finally {
-                    this.hideLoading();
-                }
-            }
-
-            parseWeatherData(html, city) {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                
-                const paragraphs = doc.querySelectorAll('p');
-                let temperature = 'N/A';
-                let windSpeed = 'N/A';
-                let condition = 'N/A';
-                let weatherCode = 0;
-
-                paragraphs.forEach(p => {
-                    const text = p.textContent;
-                    if (text.includes('Temperature:')) {
-                        temperature = text.replace('Temperature: ', '').trim();
-                    } else if (text.includes('Wind Speed:')) {
-                        windSpeed = text.replace('Wind Speed: ', '').trim();
-                    } else if (text.includes('Description:')) {
-                        condition = text.replace('Description: ', '').trim();
-                    } else if (text.includes('Weather Code:')) {
-                        weatherCode = parseInt(text.replace('Weather Code: ', '').trim()) || 0;
-                    }
-                });
-
-                return {
-                    city: city,
-                    temperature: temperature,
-                    windSpeed: windSpeed,
-                    condition: condition,
-                    weatherCode: weatherCode
-                };
-            }
-
-            generateHanddrawnComposition(city, weatherData) {
-                const weatherType = this.mapWeatherCodeToType(weatherData.weatherCode);
-                const emoji = this.getWeatherEmoji(weatherType);
-                const color = this.getWeatherColor(weatherType);
-                
-                return `
+          return `
                     <div class="handdrawn-weather-composition" style="position: relative; width: 450px; height: 350px; border-radius: 20px; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.2); background: #f8f6f0; border: 3px solid #8b7355; margin: 0 auto;">
                         
                         <!-- Paper texture background -->
@@ -390,12 +521,18 @@
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <div>
                                     <h3 style="margin: 0; font-size: 1.4rem; color: #5d4e37; font-family: 'Caveat', cursive;">${city}</h3>
-                                    <p style="margin: 5px 0; color: #8b7355; font-size: 0.9rem; font-style: italic;">${weatherData.condition}</p>
+                                    <p style="margin: 5px 0; color: #8b7355; font-size: 0.9rem; font-style: italic;">${
+                                      weatherData.condition
+                                    }</p>
                                 </div>
                                 <div style="text-align: right;">
                                     <div style="font-size: 2.2rem; margin-bottom: 5px;">${emoji}</div>
-                                    <div style="font-size: 1.6rem; font-weight: bold; color: ${color};">${weatherData.temperature}</div>
-                                    <div style="font-size: 0.8rem; color: #8b7355; margin-top: 2px;">${weatherData.windSpeed} wind</div>
+                                    <div style="font-size: 1.6rem; font-weight: bold; color: ${color};">${
+            weatherData.temperature
+          }</div>
+                                    <div style="font-size: 0.8rem; color: #8b7355; margin-top: 2px;">${
+                                      weatherData.windSpeed
+                                    } wind</div>
                                 </div>
                             </div>
                         </div>
@@ -406,10 +543,10 @@
                         </div>
                     </div>
                 `;
-            }
+        }
 
-            generateFallbackCitySketch(city) {
-                return `
+        generateFallbackCitySketch(city) {
+          return `
                     <svg viewBox="0 0 400 300" style="width: 100%; height: 100%;">
                         <defs>
                             <filter id="roughPaper">
@@ -443,27 +580,27 @@
                         <path d="M300,70 Q320,60 340,70" fill="none" stroke="#8b7355" stroke-width="1.5" opacity="0.5"/>
                     </svg>
                 `;
-            }
+        }
 
-            generateCSSWeatherEffect(weatherType) {
-                switch (weatherType) {
-                    case 'rain':
-                        return this.generateHanddrawnRain();
-                    case 'snow':
-                        return this.generateHanddrawnSnow();
-                    case 'clear':
-                        return this.generateHanddrawnSun();
-                    case 'cloudy':
-                        return this.generateHanddrawnClouds();
-                    case 'thunderstorm':
-                        return this.generateHanddrawnThunderstorm();
-                    default:
-                        return '';
-                }
-            }
+        generateCSSWeatherEffect(weatherType) {
+          switch (weatherType) {
+            case "rain":
+              return this.generateHanddrawnRain();
+            case "snow":
+              return this.generateHanddrawnSnow();
+            case "clear":
+              return this.generateHanddrawnSun();
+            case "cloudy":
+              return this.generateHanddrawnClouds();
+            case "thunderstorm":
+              return this.generateHanddrawnThunderstorm();
+            default:
+              return "";
+          }
+        }
 
-            generateHanddrawnRain() {
-                return `
+        generateHanddrawnRain() {
+          return `
                     <svg width="100%" height="100%" style="position: absolute;">
                         <defs>
                             <filter id="roughen">
@@ -484,10 +621,10 @@
                         </g>
                     </svg>
                 `;
-            }
+        }
 
-            generateHanddrawnSnow() {
-                return `
+        generateHanddrawnSnow() {
+          return `
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
                         <div style="position: absolute; left: 10%; font-size: 1.2rem; color: #E6E6FA; animation: snow-sketch 4s linear infinite; font-family: serif;">❅</div>
                         <div style="position: absolute; left: 30%; font-size: 0.9rem; color: #E6E6FA; animation: snow-sketch 5s linear infinite 1s; font-family: serif;">❄</div>
@@ -504,10 +641,10 @@
                         }
                     </style>
                 `;
-            }
+        }
 
-            generateHanddrawnSun() {
-                return `
+        generateHanddrawnSun() {
+          return `
                     <div style="position: absolute; top: 40px; right: 40px;">
                         <svg width="80" height="80" viewBox="0 0 80 80">
                             <defs>
@@ -535,10 +672,10 @@
                         </svg>
                     </div>
                 `;
-            }
+        }
 
-            generateHanddrawnClouds() {
-                return `
+        generateHanddrawnClouds() {
+          return `
                     <svg width="100%" height="100%">
                         <defs>
                             <filter id="cloudSketch">
@@ -559,10 +696,10 @@
                         </g>
                     </svg>
                 `;
-            }
+        }
 
-            generateHanddrawnThunderstorm() {
-                return `
+        generateHanddrawnThunderstorm() {
+          return `
                     <svg width="100%" height="100%">
                         <defs>
                             <filter id="lightning">
@@ -580,70 +717,70 @@
                         </path>
                     </svg>
                 `;
-            }
-
-            mapWeatherCodeToType(weatherCode) {
-                if (weatherCode >= 61 && weatherCode <= 82) return 'rain';
-                if (weatherCode >= 71 && weatherCode <= 75) return 'snow';
-                if (weatherCode >= 95 && weatherCode <= 99) return 'thunderstorm';
-                if (weatherCode >= 2 && weatherCode <= 3) return 'cloudy';
-                if (weatherCode === 0) return 'clear';
-                return 'clear';
-            }
-
-            getWeatherEmoji(weatherType) {
-                const emojis = {
-                    'clear': '☀️',
-                    'rain': '🌧️',
-                    'snow': '❄️',
-                    'cloudy': '☁️',
-                    'thunderstorm': '⛈️'
-                };
-                return emojis[weatherType] || '🌤️';
-            }
-
-            getWeatherColor(weatherType) {
-                const colors = {
-                    'clear': '#FFD700',
-                    'rain': '#4682B4',
-                    'snow': '#E6E6FA',
-                    'cloudy': '#87CEEB',
-                    'thunderstorm': '#483D8B'
-                };
-                return colors[weatherType] || '#8b7355';
-            }
-
-            addToGallery(composition) {
-                const gallery = document.getElementById('weatherGallery');
-                const wrapper = document.createElement('div');
-                wrapper.innerHTML = composition;
-                wrapper.style.animation = 'fadeInUp 0.8s ease';
-                gallery.appendChild(wrapper);
-            }
-
-            showLoading() {
-                document.getElementById('loadingDiv').style.display = 'block';
-            }
-
-            hideLoading() {
-                document.getElementById('loadingDiv').style.display = 'none';
-            }
-
-            showError(message) {
-                alert(message);
-            }
         }
 
-        // Global function for city buttons
-        function drawWeather(city) {
-            app.drawWeather(city);
+        mapWeatherCodeToType(weatherCode) {
+          if (weatherCode >= 61 && weatherCode <= 82) return "rain";
+          if (weatherCode >= 71 && weatherCode <= 75) return "snow";
+          if (weatherCode >= 95 && weatherCode <= 99) return "thunderstorm";
+          if (weatherCode >= 2 && weatherCode <= 3) return "cloudy";
+          if (weatherCode === 0) return "clear";
+          return "clear";
         }
 
-        // Initialize the app
-        let app;
-        document.addEventListener('DOMContentLoaded', () => {
-            app = new HanddrawnWeatherApp();
-        });
+        getWeatherEmoji(weatherType) {
+          const emojis = {
+            clear: "☀️",
+            rain: "🌧️",
+            snow: "❄️",
+            cloudy: "☁️",
+            thunderstorm: "⛈️",
+          };
+          return emojis[weatherType] || "🌤️";
+        }
+
+        getWeatherColor(weatherType) {
+          const colors = {
+            clear: "#FFD700",
+            rain: "#4682B4",
+            snow: "#E6E6FA",
+            cloudy: "#87CEEB",
+            thunderstorm: "#483D8B",
+          };
+          return colors[weatherType] || "#8b7355";
+        }
+
+        addToGallery(composition) {
+          const gallery = document.getElementById("weatherGallery");
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = composition;
+          wrapper.style.animation = "fadeInUp 0.8s ease";
+          gallery.appendChild(wrapper);
+        }
+
+        showLoading() {
+          document.getElementById("loadingDiv").style.display = "block";
+        }
+
+        hideLoading() {
+          document.getElementById("loadingDiv").style.display = "none";
+        }
+
+        showError(message) {
+          alert(message);
+        }
+      }
+
+      // Global function for city buttons
+      function drawWeather(city) {
+        app.drawWeather(city);
+      }
+
+      // Initialize the app
+      let app;
+      document.addEventListener("DOMContentLoaded", () => {
+        app = new HanddrawnWeatherApp();
+      });
     </script>
-</body>
+  </body>
 </html>

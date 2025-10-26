@@ -1,10 +1,16 @@
-/* Default white theme (08:00 - 18:00) */
+/* Global box-sizing for easier responsive layout */
+* {
+    box-sizing: border-box;
+}
+
+/* Default white theme (08:00 - 17:59) */
 html, body {
     width: 100%;
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     background-color: white;
     color: black;
 }
@@ -18,6 +24,8 @@ body {
     font-size: 10px;
     font-family: monospace;
     color: black;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 .ascii-art {
@@ -26,14 +34,36 @@ body {
     padding-top: 20px;
     width: 40%;
     color: black;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 #weatherDiv {
-    width: 80%;
+    width: 95%;
+    max-width: 100%;
     margin: auto;
     padding: 20px;
     background-color: white;
     color: black;
+    overflow-x: hidden;
+    word-wrap: break-word;
+}
+
+#weatherDiv svg,
+#weatherDiv img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Ensure form inputs are responsive */
+input[type="text"] {
+    max-width: 100%;
+}
+
+input[type="submit"],
+button {
+    min-height: 44px;
+    min-width: 44px;
 }
 
 /* Dark theme (18:00 - 08:00) */
@@ -59,17 +89,83 @@ body.dark-theme h1 {
     color: white;
 }
 
-@media (max-width: 600px) {
-    .ascii-art {
-        font-size: 3px;
-        width: 40%;
+/* Tablet and mobile responsive styles */
+@media (max-width: 768px) {
+    body {
+        padding: 10px !important;
     }
+    
+    h1 {
+        font-size: 1.3rem;
+        word-wrap: break-word;
+    }
+    
+    .ascii-art {
+        display: none; /* Hide ASCII art on mobile to prevent layout issues */
+    }
+    
     .ascii-logo {
         font-size: 6px;
-        font-family: monospace;
-        width: 60%;
+        width: 90%;
+        margin: 0 auto;
     }
+    
+    #weatherDiv {
+        width: 100%;
+        padding: 15px;
+        font-size: 14px;
+    }
+    
+    input[type="text"] {
+        width: 100% !important;
+        max-width: 300px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    input[type="submit"] {
+        width: 100%;
+        max-width: 300px;
+        margin-top: 10px;
+    }
+    
+    form {
+        padding: 0 10px;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
     h1 {
-        font-size: 1.5em;
+        font-size: 1.1rem;
+    }
+    
+    .ascii-logo {
+        font-size: 4px;
+        width: 95%;
+    }
+    
+    #weatherDiv {
+        padding: 10px;
+        font-size: 13px;
+    }
+    
+    p {
+        font-size: 0.9rem;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 375px) {
+    h1 {
+        font-size: 1rem;
+    }
+    
+    .ascii-logo {
+        font-size: 3px;
+    }
+    
+    #weatherDiv {
+        padding: 8px;
+        font-size: 12px;
     }
 }
