@@ -1,0 +1,25 @@
+=== Instructions to Add SSH Key to VPS ===
+
+Your SSH public key:
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJXOfdG+tnnrNc3MaJE+XlRrvstLbqBd/gLKM5PBDjop harvad@vps-2025
+
+Option 1: If you have console access to VPS (via RackNerd control panel):
+1. Login to VPS console
+2. Run: mkdir -p ~/.ssh
+3. Run: echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJXOfdG+tnnrNc3MaJE+XlRrvstLbqBd/gLKM5PBDjop harvad@vps-2025" >> ~/.ssh/authorized_keys
+4. Run: chmod 700 ~/.ssh
+5. Run: chmod 600 ~/.ssh/authorized_keys
+
+Option 2: If you have another way to access VPS:
+1. Login to VPS however you can
+2. Add the public key above to ~/.ssh/authorized_keys
+3. Fix permissions as shown above
+
+Option 3: Use ssh-copy-id (if password auth is temporarily enabled):
+ssh-copy-id -i ~/.ssh/id_ed25519_vps_2025 harvad@107.175.235.220
+
+After adding the key, test with:
+ssh -i ~/.ssh/id_ed25519_vps_2025 harvad@107.175.235.220 "echo 'Success!'"
+
+Then run deployment:
+powershell -ExecutionPolicy Bypass -File deploy-vps.ps1
