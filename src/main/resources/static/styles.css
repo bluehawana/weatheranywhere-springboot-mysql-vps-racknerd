@@ -31,18 +31,26 @@ body {
 }
 
 .ascii-logo {
-    font-size: 4px;
+    font-size: 7px;
     font-family: monospace;
     color: #2d2d2d;
     max-width: 100%;
-    max-height: 15vh;
+    max-height: 35vh;
     overflow: hidden;
-    line-height: 0.7;
-    margin: 5px auto;
+    line-height: 0.8;
+    margin: 10px auto;
 }
 
 .ascii-art {
-    display: none; /* Hide the large banner to save space */
+    font-size: 5px;
+    font-family: monospace;
+    padding-top: 5px;
+    color: #2d2d2d;
+    max-width: 100%;
+    max-height: 8vh;
+    overflow: hidden;
+    line-height: 0.7;
+    margin: 5px auto;
 }
 
 #weatherDiv {
