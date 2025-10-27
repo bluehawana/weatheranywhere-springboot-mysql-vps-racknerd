@@ -1,13 +1,257 @@
 <!DOCTYPE html>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
+  <head>
     <title>Weather Information</title>
-</head>
-<body>
-<h1>Weather Information for <span th:text="${cityName}"></span></h1>
-<p>Temperature: <span th:text="${temperature}"></span></p>
-<p>Wind Speed: <span th:text="${windSpeed}"></span></p>
-<p>Description: <span th:text="${description}"></span></p>
-</body>
+    <style>
+      .weather-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+        padding: 20px;
+        align-items: center;
+        background: rgba(139, 115, 85, 0.1);
+        border-radius: 10px;
+        margin: 20px 0;
+      }
+
+      .weather-column {
+        text-align: center;
+        padding: 15px;
+      }
+
+      .weather-column h3 {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+        color: #5d4e37;
+      }
+
+      .weather-column p {
+        margin: 8px 0;
+        font-size: 0.95rem;
+      }
+
+      .weather-icon-svg {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto;
+      }
+
+      .landmark-svg {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 768px) {
+        .weather-grid {
+          grid-template-columns: 1fr;
+          gap: 15px;
+          padding: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h2 style="text-align: center; color: #5d4e37; margin: 15px 0">
+      <span th:text="${cityName}"></span>
+    </h2>
+
+    <div class="weather-grid">
+      <!-- Column 1: Weather Info -->
+      <div class="weather-column">
+        <h3>🌡️ Weather</h3>
+        <p>
+          <strong>Temperature:</strong><br /><span
+            th:text="${temperature}"
+            style="font-size: 1.3rem; color: #d4af37"
+          ></span>
+        </p>
+        <p>
+          <strong>Wind Speed:</strong><br /><span th:text="${windSpeed}"></span>
+        </p>
+        <p>
+          <strong>Condition:</strong><br /><span
+            th:text="${description}"
+          ></span>
+        </p>
+      </div>
+
+      <!-- Column 2: Weather Icon -->
+      <div class="weather-column">
+        <h3>☀️ Icon</h3>
+        <svg
+          class="weather-icon-svg"
+          viewBox="0 0 200 200"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle
+            cx="100"
+            cy="100"
+            r="35"
+            fill="#FFD700"
+            stroke="#FFA500"
+            stroke-width="3"
+          />
+          <line
+            x1="100"
+            y1="35"
+            x2="100"
+            y2="55"
+            stroke="#FFA500"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+          <line
+            x1="100"
+            y1="145"
+            x2="100"
+            y2="165"
+            stroke="#FFA500"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+          <line
+            x1="35"
+            y1="100"
+            x2="55"
+            y2="100"
+            stroke="#FFA500"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+          <line
+            x1="145"
+            y1="100"
+            x2="165"
+            y2="100"
+            stroke="#FFA500"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+          <line
+            x1="55"
+            y1="55"
+            x2="70"
+            y2="70"
+            stroke="#FFA500"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+          <line
+            x1="130"
+            y1="130"
+            x2="145"
+            y2="145"
+            stroke="#FFA500"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+          <line
+            x1="145"
+            y1="55"
+            x2="130"
+            y2="70"
+            stroke="#FFA500"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+          <line
+            x1="70"
+            y1="130"
+            x2="55"
+            y2="145"
+            stroke="#FFA500"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
+
+      <!-- Column 3: City Landmark -->
+      <div class="weather-column">
+        <h3>🏛️ Landmark</h3>
+        <svg
+          class="landmark-svg"
+          viewBox="0 0 200 200"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect
+            x="70"
+            y="90"
+            width="60"
+            height="80"
+            fill="#8B7355"
+            stroke="#5D4E37"
+            stroke-width="2"
+          />
+          <rect
+            x="80"
+            y="100"
+            width="12"
+            height="12"
+            fill="#FFD700"
+            opacity="0.6"
+          />
+          <rect
+            x="100"
+            y="100"
+            width="12"
+            height="12"
+            fill="#FFD700"
+            opacity="0.6"
+          />
+          <rect
+            x="80"
+            y="120"
+            width="12"
+            height="12"
+            fill="#FFD700"
+            opacity="0.6"
+          />
+          <rect
+            x="100"
+            y="120"
+            width="12"
+            height="12"
+            fill="#FFD700"
+            opacity="0.6"
+          />
+          <rect
+            x="80"
+            y="140"
+            width="12"
+            height="12"
+            fill="#FFD700"
+            opacity="0.6"
+          />
+          <rect
+            x="100"
+            y="140"
+            width="12"
+            height="12"
+            fill="#FFD700"
+            opacity="0.6"
+          />
+          <rect x="90" y="155" width="20" height="15" fill="#5D4E37" />
+          <polygon
+            points="100,75 70,90 130,90"
+            fill="#A0522D"
+            stroke="#5D4E37"
+            stroke-width="2"
+          />
+          <text
+            x="100"
+            y="190"
+            text-anchor="middle"
+            font-size="11"
+            fill="currentColor"
+            th:text="${cityName}"
+          >
+            City
+          </text>
+        </svg>
+      </div>
+    </div>
+  </body>
 </html>

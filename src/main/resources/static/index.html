@@ -15,11 +15,6 @@
       // Automatic theme switching based on time (18:00-07:59 = dark, 08:00-17:59 = white)
       function applyThemeBasedOnTime() {
         try {
-          // Check if body exists
-          if (!document.body) {
-            return;
-          }
-
           const now = new Date();
           const hour = now.getHours();
 
@@ -39,13 +34,14 @@
           }
         } catch (error) {
           console.error("Error applying theme:", error);
-          if (document.body) {
-            document.body.classList.remove("dark-theme"); // Default to white theme
-          }
+          document.body.classList.remove("dark-theme"); // Default to white theme
         }
       }
 
-      // Apply theme on DOM ready to ensure body exists
+      // Apply theme immediately before page renders
+      applyThemeBasedOnTime();
+
+      // Apply theme on DOM ready as well to ensure it's set
       document.addEventListener("DOMContentLoaded", function () {
         applyThemeBasedOnTime();
       });
