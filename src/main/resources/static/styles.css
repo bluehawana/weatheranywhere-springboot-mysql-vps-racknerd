@@ -6,13 +6,23 @@
 /* Default warm theme (08:00 - 17:59) - E-reader style */
 html, body {
     width: 100%;
-    height: 100%;
+    height: 100vh;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
     background-color: #f5f3ed;
     color: #2d2d2d;
+}
+
+/* Hide scrollbars completely */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none;
+}
+
+html {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 body {
@@ -21,32 +31,39 @@ body {
 }
 
 .ascii-logo {
-    font-size: 10px;
+    font-size: 8px;
     font-family: monospace;
     color: #2d2d2d;
     max-width: 100%;
-    overflow-x: auto;
+    overflow: hidden;
+    line-height: 0.8;
 }
 
 .ascii-art {
-    font-size: 10px;
+    font-size: 6px;
     font-family: monospace;
-    padding-top: 20px;
+    padding-top: 10px;
     width: 40%;
     color: #2d2d2d;
     max-width: 100%;
-    overflow-x: auto;
+    overflow: hidden;
+    line-height: 0.8;
 }
 
 #weatherDiv {
     width: 95%;
     max-width: 100%;
     margin: auto;
-    padding: 20px;
+    padding: 15px;
     background-color: #f5f3ed;
     color: #2d2d2d;
-    overflow-x: hidden;
+    overflow: hidden;
     word-wrap: break-word;
+    max-height: 50vh;
+}
+
+#weatherDiv::-webkit-scrollbar {
+    display: none;
 }
 
 #weatherDiv svg,
